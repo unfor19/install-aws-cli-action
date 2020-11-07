@@ -100,7 +100,9 @@ install_aws_cli(){
 
 
 cleanup(){
+    ls -lah
     rm -rf "${_DOWNLOAD_FILENAME}" awscli-bundle aws
+    ls -lah
 }
 
 
