@@ -17,5 +17,5 @@ runs:
       run: echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
       shell: bash
     - id: entrypoint
-      run: echo "::set-output name=version::$(entrypoint.sh $AWS_CLI_VERSION)"
+      run: echo "::set-output name=version::$(${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION)"
       shell: bash
