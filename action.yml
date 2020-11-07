@@ -1,0 +1,16 @@
+name: "Install AWS CLI"
+description: "Install AWS CLI on a Linux host"
+inputs:
+  version:
+    description: "1=latest version of v1, 2=latest version of v2, #.#.#=specific version"
+    required: false
+    default: "2"
+runs:
+  using: "composite"
+  env:
+    AWS_CLI_VERSION: ${{ inputs.version }}  
+  steps:
+      run: echo "::set-output name=version::$(echo $AWS_CLI_VERSION)"
+      shell: bash
+    - run: ${{ github.action_path }}/entrypoint.sh
+      shell: bash
