@@ -8,19 +8,14 @@ inputs:
 outputs:
   version:
     description: "The AWS CLI version that was installed"
-    value: ${{ steps.aws-cli-version.outputs.version }}
+    value: ${{ steps.entrypoint.outputs.version }}
+
 runs:
   using: "composite"
   steps:
     - id: set-env-vars
       run: echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
       shell: bash
-    - id: print-env-vars
-      run: echo $GITHUB_ENV
-      shell: bash
     - id: entrypoint
-      run: ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
-      shell: bash
-    - id: aws-cli-version
-      run: echo "::set-output name=version::$(echo $AWS_CLI_VERSION)"
+      run: echo "::set-output name=version::$(entrypoint.sh $AWS_CLI_VERSION)"
       shell: bash
