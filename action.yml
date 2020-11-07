@@ -12,8 +12,9 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - id: set env var
+    - id: set-env-vars
       run: echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+      shell: bash
     - id: print-env-vars
       run: echo $GITHUB_ENV
       shell: bash
