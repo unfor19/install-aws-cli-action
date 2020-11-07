@@ -12,8 +12,12 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: echo "::set-output name=version::$(echo $INPUT_VERSION)"
+    - id: print-env-vars
+      run: echo $GITHUB_ENV
       shell: bash
-      id: aws-cli-version
-    - run: ${{ github.action_path }}/entrypoint.sh $INPUT_VERSION
+    - id: entrypoint
+      run: ${{ github.action_path }}/entrypoint.sh $INPUT_VERSION
+      shell: bash
+    - id: aws-cli-version
+      run: echo "::set-output name=version::$(echo $INPUT_VERSION)"
       shell: bash
