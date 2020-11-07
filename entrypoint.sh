@@ -108,9 +108,9 @@ install_aws_cli(){
 
 cleanup(){
     cd "${_ROOT_DIR}"
-    ls -lah
+    ls -lh
     rm -rf "${_WORKDIR}"
-    ls -lah
+    ls -lh
 }
 
 
