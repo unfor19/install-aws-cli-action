@@ -13,9 +13,10 @@ set -e
 ### ./entrypoint.sh ${AWS_CLI_VERSION}
 ### -----------------------------------
 
-
+_ROOT_DIR="${PWD}"
+_WORKDIR="${_ROOT_DIR}/unfor19-awscli"
 _AWS_CLI_VERSION=${AWS_CLI_VERISON:-$1}
-_DOWNLOAD_URL=
+_DOWNLOAD_URL=""
 _DOWNLOAD_FILENAME="unfor19-awscli.zip"
 
 
@@ -29,6 +30,12 @@ msg_error(){
 msg_log(){
     msg=$1
     echo -e ">> [LOG]: ${msg}"
+}
+
+
+set_workdir(){
+    mkdir -p "${_WORKDIR}"
+    cd "${_WORKDIR}"
 }
 
 
@@ -100,8 +107,9 @@ install_aws_cli(){
 
 
 cleanup(){
+    cd "${_ROOT_DIR}"
     ls -lah
-    rm -rf "${_DOWNLOAD_FILENAME}" awscli-bundle aws
+    rm -rf "${_WORKDIR}"
     ls -lah
 }
 
@@ -113,6 +121,7 @@ test_aws_cli(){
 
 
 # Main
+set_workdir
 valid_semantic_version
 set_download_url
 check_version_exists
