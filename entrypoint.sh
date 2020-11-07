@@ -99,15 +99,16 @@ install_aws_cli(){
 }
 
 
+cleanup(){
+    rm -rf "${_DOWNLOAD_FILENAME}" awscli-bundle aws
+}
+
+
 test_aws_cli(){
     msg_log "Printing AWS CLI installed version"
     aws --version
 }
 
-
-cleanup(){
-    rm -rf "${_DOWNLOAD_FILENAME}" awscli-bundle aws
-}
 
 # Main
 valid_semantic_version
@@ -115,5 +116,5 @@ set_download_url
 check_version_exists
 download_aws_cli
 install_aws_cli
-test_aws_cli
 cleanup
+test_aws_cli
