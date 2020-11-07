@@ -7,10 +7,8 @@ inputs:
     default: "2"
 runs:
   using: "composite"
-  env:
-    AWS_CLI_VERSION: ${{ inputs.version }}  
   steps:
-      run: echo "::set-output name=version::$(echo $AWS_CLI_VERSION)"
+    - run: echo "::set-output name=version::$(echo $INPUT_VERSION)"
       shell: bash
-    - run: ${{ github.action_path }}/entrypoint.sh
+    - run: ${{ github.action_path }}/entrypoint.sh $INPUT_VERSION
       shell: bash

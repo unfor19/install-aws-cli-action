@@ -1,3 +1,3 @@
 #!/bin/bash
-
-echo "Hello from entrypoint.sh, the version is ${AWS_CLI_VERSION}"
+_AWS_CLI_VERSION=${AWS_CLI_VERISON:-$1}
+echo "Hello from entrypoint.sh, the version is ${_AWS_CLI_VERSION}"
