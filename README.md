@@ -9,7 +9,7 @@ Tested in [unfor19/install-aws-cli-action-test](https://github.com/unfor19/insta
 Valid `version` values:
 
 - `1` - latest v1
-- `2` - latest v2
+- `2` - latest v2 (default)
 - `1.##.##` - specific v1
 - `2.##.##` - specific v2
 
@@ -21,7 +21,7 @@ Add the folliwng step to a job in your workflow
 - id: install-aws-cli
   uses: unfor19/install-aws-cli-action@v1
   with:
-    version: 1
+    version: 2
 ```
 
 ### Full example
