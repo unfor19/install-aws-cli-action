@@ -5,10 +5,15 @@ inputs:
     description: "1=latest version of v1, 2=latest version of v2, #.#.#=specific version"
     required: false
     default: "2"
+outputs:
+  version:
+    description: "The AWS CLI version that was installed"
+    value: ${{ steps.aws-cli-version.outputs.version }}
 runs:
   using: "composite"
   steps:
     - run: echo "::set-output name=version::$(echo $INPUT_VERSION)"
       shell: bash
+      id: aws-cli-version
     - run: ${{ github.action_path }}/entrypoint.sh $INPUT_VERSION
       shell: bash
