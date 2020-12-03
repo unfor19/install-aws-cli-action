@@ -100,7 +100,7 @@ install_aws_cli(){
     if [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
         ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
-        ./aws/install
+        ./aws/install --upgrade
     fi
     msg_log "Installation completed"
 }
