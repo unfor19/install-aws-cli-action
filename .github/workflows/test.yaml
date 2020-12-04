@@ -40,7 +40,7 @@ jobs:
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG"
+          docker run --rm "$DOCKER_FULLTAG" v2
 
   # test_no_input:
   #   runs-on: ubuntu-latest
