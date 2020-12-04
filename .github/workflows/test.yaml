@@ -4,6 +4,7 @@ on: [push, workflow_dispatch]
 
 jobs:
   dispatch_test_action:
+    name: Dispatch test action
     runs-on: ubuntu-latest
     steps:
       - name: Workflow Dispatch
