@@ -19,7 +19,7 @@ jobs:
           mkdir -p path/to/artifacts
           docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
           echo "$DOCKER_FULLTAG" > path/to/artifacts/docker-tag
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v2
         with:
           name: docker-artifact
           path: path/to/artifacts
@@ -31,7 +31,7 @@ jobs:
     name: no input
     steps:
       - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v2
         with:
           name: docker-artifact
           path: path/to/artifacts
@@ -41,16 +41,18 @@ jobs:
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
           docker run --rm "$DOCKER_FULLTAG"
-
+          ./entrypoint.sh
 
 
   test_latest_version_v1:
     needs: docker_build
     runs-on: ubuntu-latest
     name: latest v1
+    env:
+      AWS_CLI_VERSION: 1   
     steps:
       - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v2
         with:
           name: docker-artifact
           path: path/to/artifacts
@@ -59,32 +61,40 @@ jobs:
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" 1
+          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+          ./entrypoint.sh $AWS_CLI_VERSION
+
 
   test_latest_version_v2:
-      needs: docker_build
-      runs-on: ubuntu-latest
-      name: latest v2
-      steps:
-        - name: Download Docker Image (Artifact)
-          uses: actions/download-artifact@master
-          with:
-            name: docker-artifact
-            path: path/to/artifacts
-        - name: Run test
-          run: |
-            cd path/to/artifacts
-            docker load < docker-image.tar
-            export DOCKER_FULLTAG=$(cat docker-tag)
-            docker run --rm "$DOCKER_FULLTAG" 2
+    needs: docker_build
+    runs-on: ubuntu-latest
+    name: latest v2
+    env:
+      AWS_CLI_VERSION: 2  
+    steps:
+      - name: Download Docker Image (Artifact)
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-artifact
+          path: path/to/artifacts
+      - name: Run test
+        run: |
+          cd path/to/artifacts
+          docker load < docker-image.tar
+          export DOCKER_FULLTAG=$(cat docker-tag)
+          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+          ./entrypoint.sh $AWS_CLI_VERSION
+
 
   test_specific_v1:
     needs: docker_build
     runs-on: ubuntu-latest
     name: specific v1
+    env:
+      AWS_CLI_VERSION: 1.18.1
     steps:
       - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v2
         with:
           name: docker-artifact
           path: path/to/artifacts
@@ -94,14 +104,18 @@ jobs:
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
           docker run --rm "$DOCKER_FULLTAG" 1.18.1
+          ./entrypoint.sh
+
 
   test_specific_v2:
     needs: docker_build
     runs-on: ubuntu-latest
     name: specific v2
+    env:
+      AWS_CLI_VERSION: 2.0.30
     steps:
       - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v2
         with:
           name: docker-artifact
           path: path/to/artifacts
@@ -110,4 +124,5 @@ jobs:
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" 2.0.30
+          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+          ./entrypoint.sh
