@@ -3,7 +3,9 @@
 [![test](https://github.com/unfor19/install-aws-cli-action/workflows/test/badge.svg)](https://github.com/unfor19/install-aws-cli-action/actions?query=workflow%3Atest)
 [![test-action](https://github.com/unfor19/install-aws-cli-action-test/workflows/test-action/badge.svg)](https://github.com/unfor19/install-aws-cli-action-test/actions?query=workflow%3Atest-action)
 
-Install AWS CLI on a GitHub Actions Linux host. After this action, every step is capable of running `aws` CLI, it's up to you to set the environment variables (secrets) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+Install AWS CLI on a GitHub Actions Linux host. 
+
+After this action, every step is capable of running `aws` CLI, and it's up to you to set the environment variables (secrets) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 
 Tested in [unfor19/install-aws-cli-action-test](https://github.com/unfor19/install-aws-cli-action-test/actions)
 
@@ -18,7 +20,7 @@ Valid `version` values:
 
 ### Snippet
 
-Add the folliwng step to a job in your workflow
+Add the following step to a job in your workflow
 
 ```yaml
 - id: install-aws-cli
