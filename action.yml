@@ -8,6 +8,10 @@ inputs:
     description: "1=latest version of v1, 2=latest version of v2, #.#.#=specific version"
     required: false
     default: 2
+  verbose:
+    description: "Prints ls commands to see changes in the filesystem"
+    required: false
+    default: false
 outputs:
   version:
     description: "The AWS CLI version that was installed"
@@ -18,11 +22,13 @@ runs:
   using: "composite"
   steps:
     - id: set-env-vars
-      run: echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+      run: |
+        echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+        echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
       run: sudo ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
-      shell: bash      
+      shell: bash
     - id: set-output
       run: echo "::set-output name=version::$(aws --version)"
       shell: bash
