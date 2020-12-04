@@ -2,6 +2,8 @@ on: [push]
 
 jobs:
   docker_build:
+    runs-on: ubuntu-latest
+    name: Docker Build
     steps:
     - uses: actions/checkout@v2
     - name: Inject slug/short variables
