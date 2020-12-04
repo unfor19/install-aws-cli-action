@@ -106,7 +106,7 @@ install_aws_cli(){
         set +e
         aws_path=$(which aws)
         set -e
-        if [[ $aws_path =~ ^.*aws.*not.*found ]]; then
+        if [[ $aws_path =~ ^.*aws.*not.*found || -z $aws_path ]]; then
             # Fresh install
             ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli        
         else
