@@ -35,13 +35,17 @@ jobs:
         with:
           name: docker-artifact
           path: path/to/artifacts
-      - name: Run test
+      - name: Run test in Docker
         run: |
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
           docker run --rm "$DOCKER_FULLTAG"
+      - uses: actions/checkout@v2  
+      - name: Run test on Runner
+        run: |
           ./entrypoint.sh
+
 
 
   test_latest_version_v1:
@@ -50,19 +54,22 @@ jobs:
     name: latest v1
     env:
       AWS_CLI_VERSION: 1   
-    steps:
+    steps:    
       - name: Download Docker Image (Artifact)
         uses: actions/download-artifact@v2
         with:
           name: docker-artifact
           path: path/to/artifacts
-      - name: Run test
+      - name: Run test in Docker
         run: |
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
           docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-          ./entrypoint.sh $AWS_CLI_VERSION
+      - uses: actions/checkout@v2 
+      - name: Run test on Runner
+        run: |
+          ./entrypoint.sh
 
 
   test_latest_version_v2:
@@ -77,13 +84,16 @@ jobs:
         with:
           name: docker-artifact
           path: path/to/artifacts
-      - name: Run test
+      - name: Run test in Docker
         run: |
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
           docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-          ./entrypoint.sh $AWS_CLI_VERSION
+      - uses: actions/checkout@v2
+      - name: Run test on Runner
+        run: |
+          ./entrypoint.sh
 
 
   test_specific_v1:
@@ -98,12 +108,15 @@ jobs:
         with:
           name: docker-artifact
           path: path/to/artifacts
-      - name: Run test
+      - name: Run test in Docker
         run: |
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" 1.18.1
+          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+      - uses: actions/checkout@v2 
+      - name: Run test on Runner
+        run: |
           ./entrypoint.sh
 
 
@@ -119,10 +132,14 @@ jobs:
         with:
           name: docker-artifact
           path: path/to/artifacts
-      - name: Run test
+      - name: Run test in Docker
         run: |
           cd path/to/artifacts
           docker load < docker-image.tar
           export DOCKER_FULLTAG=$(cat docker-tag)
           docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+          ./entrypoint.sh
+      - uses: actions/checkout@v2 
+      - name: Run test on Runner
+        run: |
           ./entrypoint.sh
