@@ -13,6 +13,7 @@ outputs:
     description: "The AWS CLI version that was installed"
     value: ${{ steps.set-output.outputs.version }}
 
+
 runs:
   using: "composite"
   steps:
