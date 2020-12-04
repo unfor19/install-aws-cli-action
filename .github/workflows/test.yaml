@@ -1,0 +1,80 @@
+on: [push]
+
+jobs:
+  docker_build:
+    steps:
+    - uses: actions/checkout@v2
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v3.x    
+    - name: Build Image
+      env:
+        DOCKER_ORG: unfor19
+        DOCKER_REPO: install-aws-cli-action
+        DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}"
+      run: |
+      export DOCKER_FULLTAG="${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG}"
+      docker build -t "$DOCKER_FULLTAG" .
+      mkdir -p path/to/artifacts
+      docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
+    - uses: actions/upload-artifact@master
+      with:
+        name: docker-image
+        path: path/to/artifacts
+
+  # test_no_input:
+  #   runs-on: ubuntu-latest
+  #   name: no input
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - id: install-aws-cli
+  #       uses: unfor19/install-aws-cli-action@v1.0.1
+  #     - run: aws --version
+  #       shell: bash
+
+  # test_latest_version_v1:
+  #   runs-on: ubuntu-latest
+  #   name: latest v1
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - id: install-aws-cli
+  #       uses: unfor19/install-aws-cli-action@v1.0.1
+  #       with:
+  #         version: 1
+  #     - run: aws --version
+  #       shell: bash
+
+  # test_latest_version_v2:
+  #   runs-on: ubuntu-latest
+  #   name: latest v2
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - id: install-aws-cli
+  #       uses: unfor19/install-aws-cli-action@v1.0.1
+  #       with:
+  #         version: 2
+  #     - run: aws --version
+  #       shell: bash
+
+  # test_specific_v1:
+  #   runs-on: ubuntu-latest
+  #   name: specific v1
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - id: install-aws-cli
+  #       uses: unfor19/install-aws-cli-action@v1.0.1
+  #       with:
+  #         version: 1.18.1
+  #     - run: aws --version
+  #       shell: bash
+
+  # test_specific_v2:
+  #   runs-on: ubuntu-latest
+  #   name: specific v2
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - id: install-aws-cli
+  #       uses: unfor19/install-aws-cli-action@v1.0.1
+  #       with:
+  #         version: 2.0.30
+  #     - run: aws --version
+  #       shell: bash
