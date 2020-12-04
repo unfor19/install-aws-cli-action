@@ -16,16 +16,17 @@ set -e
 ### ----------------------------------------
 
 
-_DEFAULT_VERSION=2
+_ROOT_DIR="${PWD}"
 _WORKDIR="${_ROOT_DIR}/unfor19-awscli"
 _DOWNLOAD_FILENAME="unfor19-awscli.zip"
 _VERBOSE=${VERBOSE:-"false"}
+_DEFAULT_VERSION=2
 _AWS_CLI_VERSION=${1:-$AWS_CLI_VERSION} # Use env or arg
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION^^} # All uppercase
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION//V/} # Remove "V"
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION:-$_DEFAULT_VERSION}
 _DOWNLOAD_URL=""
-_ROOT_DIR="${PWD}"
+
 
 msg_error(){
     msg=$1
