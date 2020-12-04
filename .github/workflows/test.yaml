@@ -81,7 +81,7 @@ jobs:
   test_specific_v1:
     needs: docker_build
     runs-on: ubuntu-latest
-    name: specific v2
+    name: specific v1
     steps:
       - name: Download Docker Image (Artifact)
         uses: actions/download-artifact@master
