@@ -6,14 +6,19 @@ jobs:
   dispatch_test_action:
     name: Dispatch test action
     runs-on: ubuntu-latest
+    env:
+      GH_OWNER: unfor19
+      GH_REPO: install-aws-cli-action-test
+      GH_WORKFLOW: test-action.yml
+      GH_REF: master
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Workflow Dispatch
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: test-action
-          token: ${{ secrets.GH_TOKEN }}
-          ref: master
-          repo: unfor19/install-aws-cli-action-test
+        run: |
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/${GH_WORKFLOW}/dispatches \
+            -d '{"ref":"'${GH_REF}'"}'
 
 
   docker_build:
