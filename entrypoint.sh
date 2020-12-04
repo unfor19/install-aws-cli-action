@@ -16,6 +16,7 @@ set -e
 _ROOT_DIR="${PWD}"
 _WORKDIR="${_ROOT_DIR}/unfor19-awscli"
 _AWS_CLI_VERSION=${AWS_CLI_VERISON:-$1}
+_AWS_CLI_VERSION=${_AWS_CLI_VERSION:-"2"}
 _DOWNLOAD_URL=""
 _DOWNLOAD_FILENAME="unfor19-awscli.zip"
 
@@ -97,17 +98,20 @@ install_aws_cli(){
     local aws_path
     msg_log "Unzipping ${_DOWNLOAD_FILENAME}"
     unzip -qq "$_DOWNLOAD_FILENAME"
+    ls -lah
     msg_log "Installing AWS CLI - ${_AWS_CLI_VERSION}"
     if [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
         ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
+        set +e
         aws_path=$(which aws)
-        if [[ -n "$aws_path" ]]; then
+        set -e
+        if [[ $aws_path =~ ^.*aws.*not.*found || -z $aws_path ]]; then
+            # Fresh install
+            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli        
+        else
             # Update
             ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
-        else
-            # Fresh install
-            ./aws/install
         fi
     fi
     msg_log "Installation completed"
