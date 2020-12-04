@@ -42,7 +42,7 @@ jobs:
         run: |
           docker pull "$DOCKER_TAG" || true
       - name: docker build
-        run: docker build . -t cached --cache-from=docker.pkg.github.com/$DOCKER_ORG/${DOCKER_REPO}
+        run: docker build . -t cached --cache-from="$DOCKER_TAG"
       - name: docker tag
         run: docker tag cached "$DOCKER_TAG"
       - name: docker push
