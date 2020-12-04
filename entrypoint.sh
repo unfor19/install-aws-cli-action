@@ -105,6 +105,7 @@ install_aws_cli(){
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         set +e
         aws_path=$(which aws)
+        echo "aws_path = $aws_path"
         set -e
         if [[ $aws_path =~ ^.*aws.*not.*found || -z $aws_path ]]; then
             # Fresh install
