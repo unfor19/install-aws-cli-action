@@ -16,15 +16,16 @@ set -e
 ### ----------------------------------------
 
 
-_ROOT_DIR="${PWD}"
+_DEFAULT_VERSION=2
 _WORKDIR="${_ROOT_DIR}/unfor19-awscli"
+_DOWNLOAD_FILENAME="unfor19-awscli.zip"
+_VERBOSE=${VERBOSE:-"false"}
 _AWS_CLI_VERSION=${1:-$AWS_CLI_VERSION} # Use env or arg
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION^^} # All uppercase
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION//V/} # Remove "V"
-_AWS_CLI_VERSION=${_AWS_CLI_VERSION:-"2"}
+_AWS_CLI_VERSION=${_AWS_CLI_VERSION:-$_DEFAULT_VERSION}
 _DOWNLOAD_URL=""
-_DOWNLOAD_FILENAME="unfor19-awscli.zip"
-_VERBOSE=${VERBOSE:-"false"}
+_ROOT_DIR="${PWD}"
 
 msg_error(){
     msg=$1
@@ -112,7 +113,7 @@ install_aws_cli(){
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         set +e
         aws_path=$(which aws)
-        msg_log "aws_path = $aws_path"
+        [[ -n $aws_path ]] && msg_log "aws_path = $aws_path"
         set -e
         if [[ $aws_path =~ ^.*aws.*not.*found || -z $aws_path ]]; then
             # Fresh install
