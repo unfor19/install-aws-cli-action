@@ -42,60 +42,72 @@ jobs:
           export DOCKER_FULLTAG=$(cat docker-tag)
           docker run --rm "$DOCKER_FULLTAG"
 
-  # test_no_input:
-  #   runs-on: ubuntu-latest
-  #   name: no input
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - id: install-aws-cli
-  #       uses: unfor19/install-aws-cli-action@v1.0.1
-  #     - run: aws --version
-  #       shell: bash
 
-  # test_latest_version_v1:
-  #   runs-on: ubuntu-latest
-  #   name: latest v1
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - id: install-aws-cli
-  #       uses: unfor19/install-aws-cli-action@v1.0.1
-  #       with:
-  #         version: 1
-  #     - run: aws --version
-  #       shell: bash
 
-  # test_latest_version_v2:
-  #   runs-on: ubuntu-latest
-  #   name: latest v2
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - id: install-aws-cli
-  #       uses: unfor19/install-aws-cli-action@v1.0.1
-  #       with:
-  #         version: 2
-  #     - run: aws --version
-  #       shell: bash
+  test_latest_version_v1:
+    needs: docker_build
+    runs-on: ubuntu-latest
+    name: latest v1
+    steps:
+      - name: Download Docker Image (Artifact)
+        uses: actions/download-artifact@master
+        with:
+          name: docker-artifact
+          path: path/to/artifacts
+      - name: Run test
+        run: |
+          cd path/to/artifacts
+          docker load < docker-image.tar
+          export DOCKER_FULLTAG=$(cat docker-tag)
+          docker run --rm "$DOCKER_FULLTAG" 1
 
-  # test_specific_v1:
-  #   runs-on: ubuntu-latest
-  #   name: specific v1
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - id: install-aws-cli
-  #       uses: unfor19/install-aws-cli-action@v1.0.1
-  #       with:
-  #         version: 1.18.1
-  #     - run: aws --version
-  #       shell: bash
+  test_latest_version_v2:
+      needs: docker_build
+      runs-on: ubuntu-latest
+      name: latest v2
+      steps:
+        - name: Download Docker Image (Artifact)
+          uses: actions/download-artifact@master
+          with:
+            name: docker-artifact
+            path: path/to/artifacts
+        - name: Run test
+          run: |
+            cd path/to/artifacts
+            docker load < docker-image.tar
+            export DOCKER_FULLTAG=$(cat docker-tag)
+            docker run --rm "$DOCKER_FULLTAG" 2
 
-  # test_specific_v2:
-  #   runs-on: ubuntu-latest
-  #   name: specific v2
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - id: install-aws-cli
-  #       uses: unfor19/install-aws-cli-action@v1.0.1
-  #       with:
-  #         version: 2.0.30
-  #     - run: aws --version
-  #       shell: bash
+  test_specific_v1:
+    needs: docker_build
+    runs-on: ubuntu-latest
+    name: specific v2
+    steps:
+      - name: Download Docker Image (Artifact)
+        uses: actions/download-artifact@master
+        with:
+          name: docker-artifact
+          path: path/to/artifacts
+      - name: Run test
+        run: |
+          cd path/to/artifacts
+          docker load < docker-image.tar
+          export DOCKER_FULLTAG=$(cat docker-tag)
+          docker run --rm "$DOCKER_FULLTAG" 1.18.1
+
+  test_specific_v2:
+    needs: docker_build
+    runs-on: ubuntu-latest
+    name: specific v2
+    steps:
+      - name: Download Docker Image (Artifact)
+        uses: actions/download-artifact@master
+        with:
+          name: docker-artifact
+          path: path/to/artifacts
+      - name: Run test
+        run: |
+          cd path/to/artifacts
+          docker load < docker-image.tar
+          export DOCKER_FULLTAG=$(cat docker-tag)
+          docker run --rm "$DOCKER_FULLTAG" 2.0.30
