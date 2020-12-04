@@ -5,40 +5,41 @@ jobs:
     runs-on: ubuntu-latest
     name: Docker Build
     steps:
-    - uses: actions/checkout@v2
-    - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v3.x    
-    - name: Build Image
-      env:
-        DOCKER_ORG: unfor19
-        DOCKER_REPO: install-aws-cli-action
-        DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}
-      run: |
-        export DOCKER_FULLTAG="${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG//\\//-}"
-        docker build -t "$DOCKER_FULLTAG" .
-        mkdir -p path/to/artifacts
-        docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
-        echo "$DOCKER_FULLTAG" > path/to/artifacts/docker-tag
-    - uses: actions/upload-artifact@master
-      with:
-        name: docker-artifact
-        path: path/to/artifacts
+      - uses: actions/checkout@v2
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x    
+      - name: Build Image
+        env:
+          DOCKER_ORG: unfor19
+          DOCKER_REPO: install-aws-cli-action
+          DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}
+        run: |
+          export DOCKER_FULLTAG="${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG//\\//-}"
+          docker build -t "$DOCKER_FULLTAG" .
+          mkdir -p path/to/artifacts
+          docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
+          echo "$DOCKER_FULLTAG" > path/to/artifacts/docker-tag
+      - uses: actions/upload-artifact@master
+        with:
+          name: docker-artifact
+          path: path/to/artifacts
 
 
   test_no_input:
     runs-on: ubuntu-latest
     name: no input
-    - name: Download Docker Image (Artifact)
-      uses: actions/download-artifact@master
-      with:
-        name: docker-artifact
-        path: path/to/artifacts
-    - name: Run test
-      run: |
-        cd path/to/artifacts
-        docker load < docker-image.tar
-        export DOCKER_FULLTAG=$(cat docker-tag)
-        docker run --rm "$DOCKER_FULLTAG"
+    steps:
+      - name: Download Docker Image (Artifact)
+        uses: actions/download-artifact@master
+        with:
+          name: docker-artifact
+          path: path/to/artifacts
+      - name: Run test
+        run: |
+          cd path/to/artifacts
+          docker load < docker-image.tar
+          export DOCKER_FULLTAG=$(cat docker-tag)
+          docker run --rm "$DOCKER_FULLTAG"
 
   # test_no_input:
   #   runs-on: ubuntu-latest
