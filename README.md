@@ -24,7 +24,7 @@ Add the following step to a job in your workflow
 
 ```yaml
 - id: install-aws-cli
-  uses: unfor19/install-aws-cli-action@v1.0.2
+  uses: unfor19/install-aws-cli-action@v1
   with:
     version: 2 # default
     verbose: false # default
@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.2
+        uses: unfor19/install-aws-cli-action@v1
       - run: aws --version
         shell: bash
 
@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.2
+        uses: unfor19/install-aws-cli-action@v1
         with:
           version: 1
       - run: aws --version
@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.2
+        uses: unfor19/install-aws-cli-action@v1
         with:
           version: 2
       - run: aws --version
@@ -76,7 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.2
+        uses: unfor19/install-aws-cli-action@v1
         with:
           version: 1.18.1
       - run: aws --version
@@ -88,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.2
+        uses: unfor19/install-aws-cli-action@v1
         with:
           version: 2.0.30
       - run: aws --version
