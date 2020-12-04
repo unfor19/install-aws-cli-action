@@ -3,162 +3,186 @@ name: test
 on: [push, workflow_dispatch]
 
 jobs:
-  dispatch_test_action:
-    name: Dispatch test action
-    runs-on: ubuntu-latest
-    env:
-      GH_OWNER: unfor19
-      GH_REPO: install-aws-cli-action-test
-      GH_WORKFLOW: test-action.yml
-      GH_REF: master
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
-    steps:
-      - name: Workflow Dispatch
-        run: |
-          curl -X POST -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/${GH_WORKFLOW}/dispatches \
-            -d '{"ref":"'${GH_REF}'"}'
+  # dispatch_test_action:
+  #   name: Dispatch test action
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     GH_OWNER: unfor19
+  #     GH_REPO: install-aws-cli-action-test
+  #     GH_WORKFLOW: test-action.yml
+  #     GH_REF: master
+  #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  #   steps:
+  #     - name: Workflow Dispatch
+  #       run: |
+  #         curl -X POST -H "Accept: application/vnd.github.v3+json" \
+  #           -H "Authorization: Bearer ${GH_TOKEN}" \
+  #           https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/${GH_WORKFLOW}/dispatches \
+  #           -d '{"ref":"'${GH_REF}'"}'
 
 
   docker_build:
     runs-on: ubuntu-latest
-    name: Docker Build
+    name: docker build
+      env:
+        DOCKER_ORG: unfor19
+        DOCKER_REPO: install-aws-cli-action
     steps:
       - uses: actions/checkout@v2
       - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x    
-      - name: Build Image
-        env:
-          DOCKER_ORG: unfor19
-          DOCKER_REPO: install-aws-cli-action
-          DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
         run: |
-          export DOCKER_FULLTAG="${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG//\\//-}"
-          docker build -t "$DOCKER_FULLTAG" .
-          mkdir -p path/to/artifacts
-          docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
-          echo "$DOCKER_FULLTAG" > path/to/artifacts/docker-tag
-      - uses: actions/upload-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          echo DOCKER_TAG=docker.pkg.github.com/$DOCKER_ORG/${DOCKER_REPO}:${BRANCH_NAME//\//-} >> $GITHUB_ENV
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG" || true
+      - name: docker build
+        run: docker build . -t cached --cache-from=docker.pkg.github.com/$DOCKER_ORG/${DOCKER_REPO}
+      - name: docker tag
+        run: docker tag cached "$DOCKER_TAG"
+      - name: docker push
+        run: docker push "$DOCKER_TAG" || true
+
+  # docker_build:
+  #   runs-on: ubuntu-latest
+  #   name: Docker Build
+  #   steps:
+  #     - name: Build Image
+  #       env:
+  #         DOCKER_ORG: unfor19
+  #         DOCKER_REPO: install-aws-cli-action
+  #         DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}
+  #       run: |
+  #         export DOCKER_FULLTAG="${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG//\\//-}"
+  #         docker build -t "$DOCKER_FULLTAG" .
+  #         mkdir -p path/to/artifacts
+  #         docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
+  #         echo "$DOCKER_FULLTAG" > path/to/artifacts/docker-tag
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         name: docker-artifact
+  #         path: path/to/artifacts
 
 
-  test_no_input:
-    needs: docker_build
-    runs-on: ubuntu-latest
-    name: no input
-    steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
-        run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG"
-      - uses: actions/checkout@v2  
-      - name: Run test on Runner
-        run: |
-          sudo ./entrypoint.sh
+  # test_no_input:
+  #   needs: docker_build
+  #   runs-on: ubuntu-latest
+  #   name: no input
+  #   steps:
+  #     - name: Download Docker Image (Artifact)
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: docker-artifact
+  #         path: path/to/artifacts
+  #     - name: Run test in Docker
+  #       run: |
+  #         cd path/to/artifacts
+  #         docker load < docker-image.tar
+  #         export DOCKER_FULLTAG=$(cat docker-tag)
+  #         docker run --rm "$DOCKER_FULLTAG"
+  #     - uses: actions/checkout@v2  
+  #     - name: Run test on Runner
+  #       run: |
+  #         sudo ./entrypoint.sh
 
 
 
-  test_latest_version_v1:
-    needs: docker_build
-    runs-on: ubuntu-latest
-    name: latest v1
-    env:
-      AWS_CLI_VERSION: 1   
-    steps:    
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
-        run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-      - uses: actions/checkout@v2 
-      - name: Run test on Runner
-        run: |
-          sudo ./entrypoint.sh
+  # test_latest_version_v1:
+  #   needs: docker_build
+  #   runs-on: ubuntu-latest
+  #   name: latest v1
+  #   env:
+  #     AWS_CLI_VERSION: 1   
+  #   steps:    
+  #     - name: Download Docker Image (Artifact)
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: docker-artifact
+  #         path: path/to/artifacts
+  #     - name: Run test in Docker
+  #       run: |
+  #         cd path/to/artifacts
+  #         docker load < docker-image.tar
+  #         export DOCKER_FULLTAG=$(cat docker-tag)
+  #         docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+  #     - uses: actions/checkout@v2 
+  #     - name: Run test on Runner
+  #       run: |
+  #         sudo ./entrypoint.sh
 
 
-  test_latest_version_v2:
-    needs: docker_build
-    runs-on: ubuntu-latest
-    name: latest v2
-    env:
-      AWS_CLI_VERSION: 2  
-    steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
-        run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-      - uses: actions/checkout@v2
-      - name: Run test on Runner
-        run: |
-          sudo ./entrypoint.sh
+  # test_latest_version_v2:
+  #   needs: docker_build
+  #   runs-on: ubuntu-latest
+  #   name: latest v2
+  #   env:
+  #     AWS_CLI_VERSION: 2  
+  #   steps:
+  #     - name: Download Docker Image (Artifact)
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: docker-artifact
+  #         path: path/to/artifacts
+  #     - name: Run test in Docker
+  #       run: |
+  #         cd path/to/artifacts
+  #         docker load < docker-image.tar
+  #         export DOCKER_FULLTAG=$(cat docker-tag)
+  #         docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+  #     - uses: actions/checkout@v2
+  #     - name: Run test on Runner
+  #       run: |
+  #         sudo ./entrypoint.sh
 
 
-  test_specific_v1:
-    needs: docker_build
-    runs-on: ubuntu-latest
-    name: specific v1
-    env:
-      AWS_CLI_VERSION: 1.18.1
-    steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
-        run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-      - uses: actions/checkout@v2 
-      - name: Run test on Runner
-        run: |
-          sudo ./entrypoint.sh
+  # test_specific_v1:
+  #   needs: docker_build
+  #   runs-on: ubuntu-latest
+  #   name: specific v1
+  #   env:
+  #     AWS_CLI_VERSION: 1.18.1
+  #   steps:
+  #     - name: Download Docker Image (Artifact)
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: docker-artifact
+  #         path: path/to/artifacts
+  #     - name: Run test in Docker
+  #       run: |
+  #         cd path/to/artifacts
+  #         docker load < docker-image.tar
+  #         export DOCKER_FULLTAG=$(cat docker-tag)
+  #         docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+  #     - uses: actions/checkout@v2 
+  #     - name: Run test on Runner
+  #       run: |
+  #         sudo ./entrypoint.sh
 
 
-  test_specific_v2:
-    needs: docker_build
-    runs-on: ubuntu-latest
-    name: specific v2
-    env:
-      AWS_CLI_VERSION: 2.0.30
-    steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
-        run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-      - uses: actions/checkout@v2 
-      - name: Run test on Runner
-        run: |
-          sudo ./entrypoint.sh
+  # test_specific_v2:
+  #   needs: docker_build
+  #   runs-on: ubuntu-latest
+  #   name: specific v2
+  #   env:
+  #     AWS_CLI_VERSION: 2.0.30
+  #   steps:
+  #     - name: Download Docker Image (Artifact)
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: docker-artifact
+  #         path: path/to/artifacts
+  #     - name: Run test in Docker
+  #       run: |
+  #         cd path/to/artifacts
+  #         docker load < docker-image.tar
+  #         export DOCKER_FULLTAG=$(cat docker-tag)
+  #         docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
+  #     - uses: actions/checkout@v2 
+  #     - name: Run test on Runner
+  #       run: |
+  #         sudo ./entrypoint.sh
