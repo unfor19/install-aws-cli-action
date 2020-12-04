@@ -2,24 +2,29 @@
 set -e
 
 ### Requirements
-### -----------------------------------
+### ----------------------------------------
 ### Minimum: wget and unzip
 ### v1: Python v2.7+ or 3.4+
-### v2: Nothing special 
-### -----------------------------------
+### v2: Nothing special
+### ----------------------------------------
 
 ### Usage
-### -----------------------------------
-### ./entrypoint.sh ${AWS_CLI_VERSION}
-### -----------------------------------
+### ----------------------------------------
+### Set AWS_CLI_VERSION env var or pass arg
+### Avoid printing ls - export VERBOSE=true
+### ./entrypoint.sh "$AWS_CLI_VERSION"
+### ----------------------------------------
+
 
 _ROOT_DIR="${PWD}"
 _WORKDIR="${_ROOT_DIR}/unfor19-awscli"
-_AWS_CLI_VERSION=${AWS_CLI_VERISON:-$1}
+_AWS_CLI_VERSION=${1:-$AWS_CLI_VERSION} # Use env or arg
+_AWS_CLI_VERSION=${_AWS_CLI_VERSION^^} # All uppercase
+_AWS_CLI_VERSION=${_AWS_CLI_VERSION//V/} # Remove "V"
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION:-"2"}
 _DOWNLOAD_URL=""
 _DOWNLOAD_FILENAME="unfor19-awscli.zip"
-
+_VERBOSE=${VERBOSE:-"false"}
 
 msg_error(){
     msg=$1
@@ -41,7 +46,7 @@ set_workdir(){
 
 
 valid_semantic_version(){
-    msg_log "Validating semantic version"
+    msg_log "Validating semantic version - $_AWS_CLI_VERSION"
     if [[ $_AWS_CLI_VERSION =~ ^([1,2]|[1,2](\.[0-9]{1,2}\.[0-9]{1,3}))$ ]]; then
         msg_log "Valid version input"
     else
@@ -90,7 +95,8 @@ check_version_exists(){
 download_aws_cli(){
     msg_log "Downloading ..."
     wget -q -O "$_DOWNLOAD_FILENAME" "$_DOWNLOAD_URL"
-    ls -lah "$_DOWNLOAD_FILENAME"
+    [[ $_VERBOSE = "true" ]] && ls -lah "$_DOWNLOAD_FILENAME"
+    wait
 }
 
 
@@ -98,14 +104,15 @@ install_aws_cli(){
     local aws_path
     msg_log "Unzipping ${_DOWNLOAD_FILENAME}"
     unzip -qq "$_DOWNLOAD_FILENAME"
-    ls -lah
+    [[ $_VERBOSE = "true" ]] && ls -lah
+    wait
     msg_log "Installing AWS CLI - ${_AWS_CLI_VERSION}"
     if [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
         ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         set +e
         aws_path=$(which aws)
-        echo "aws_path = $aws_path"
+        msg_log "aws_path = $aws_path"
         set -e
         if [[ $aws_path =~ ^.*aws.*not.*found || -z $aws_path ]]; then
             # Fresh install
@@ -121,9 +128,10 @@ install_aws_cli(){
 
 cleanup(){
     cd "${_ROOT_DIR}"
-    ls -lh
+    [[ $_VERBOSE = "true" ]] && ls -lh
     rm -rf "${_WORKDIR}"
-    ls -lh
+    [[ $_VERBOSE = "true" ]] && ls -lh
+    wait
 }
 
 

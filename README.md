@@ -21,7 +21,8 @@ Add the folliwng step to a job in your workflow
 - id: install-aws-cli
   uses: unfor19/install-aws-cli-action@v1.0.1
   with:
-    version: 2
+    version: 2 # default
+    verbose: false # default
 ```
 
 ### Full example
