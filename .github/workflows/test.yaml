@@ -24,9 +24,9 @@ jobs:
   docker_build:
     runs-on: ubuntu-latest
     name: docker build
-      env:
-        DOCKER_ORG: unfor19
-        DOCKER_REPO: install-aws-cli-action
+    env:
+      DOCKER_ORG: unfor19
+      DOCKER_REPO: install-aws-cli-action
     steps:
       - uses: actions/checkout@v2
       - name: Inject slug/short variables
