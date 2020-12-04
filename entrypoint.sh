@@ -11,7 +11,7 @@ set -e
 ### Usage
 ### ----------------------------------------
 ### Set AWS_CLI_VERSION env var or pass arg
-### Avoid printing ls - export VERBOSE=true
+### Print ls - export VERBOSE=true
 ### ./entrypoint.sh "$AWS_CLI_VERSION"
 ### ----------------------------------------
 
