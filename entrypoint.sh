@@ -94,13 +94,21 @@ download_aws_cli(){
 
 
 install_aws_cli(){
+    local aws_path
     msg_log "Unzipping ${_DOWNLOAD_FILENAME}"
     unzip -qq "$_DOWNLOAD_FILENAME"
     msg_log "Installing AWS CLI - ${_AWS_CLI_VERSION}"
     if [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
         ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
-        ./aws/install --upgrade
+        aws_path=$(which aws)
+        if [[ -n "$aws_path" ]]; then
+            # Update
+            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+        else
+            # Fresh install
+            ./aws/install
+        fi
     fi
     msg_log "Installation completed"
 }
