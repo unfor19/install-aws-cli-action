@@ -12,12 +12,12 @@ jobs:
       env:
         DOCKER_ORG: unfor19
         DOCKER_REPO: install-aws-cli-action
-        DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}"
+        DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}
       run: |
-        export DOCKER_FULLTAG=${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG//\\//-}
-        docker build -t $DOCKER_FULLTAG .
+        export DOCKER_FULLTAG="${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG//\\//-}"
+        docker build -t "$DOCKER_FULLTAG" .
         mkdir -p path/to/artifacts
-        docker save $DOCKER_FULLTAG > path/to/artifacts/docker-image.tar
+        docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
     - uses: actions/upload-artifact@master
       with:
         name: docker-image
