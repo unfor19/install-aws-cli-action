@@ -23,26 +23,27 @@ jobs:
 
   docker_build:
     runs-on: ubuntu-latest
-    name: Docker Build
+    name: docker build
     steps:
       - uses: actions/checkout@v2
       - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x    
-      - name: Build Image
-        env:
-          DOCKER_ORG: unfor19
-          DOCKER_REPO: install-aws-cli-action
-          DOCKER_TAG: ${{ env.GITHUB_REF_SLUG }}
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
         run: |
-          export DOCKER_FULLTAG="${DOCKER_ORG}/${DOCKER_REPO}:${DOCKER_TAG//\\//-}"
-          docker build -t "$DOCKER_FULLTAG" .
-          mkdir -p path/to/artifacts
-          docker save "$DOCKER_FULLTAG" > path/to/artifacts/docker-image.tar
-          echo "$DOCKER_FULLTAG" > path/to/artifacts/docker-tag
-      - uses: actions/upload-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-} >> $GITHUB_ENV
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG" || true
+      - name: docker build
+        run: docker build . -t cached --cache-from="$DOCKER_TAG"
+      - name: docker tag
+        run: docker tag cached "$DOCKER_TAG"
+      - name: docker push
+        run: docker push "$DOCKER_TAG" || true
 
 
   test_no_input:
@@ -50,22 +51,25 @@ jobs:
     runs-on: ubuntu-latest
     name: no input
     steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
+      - uses: actions/checkout@v2
+      - name: test on Runner
         run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG"
-      - uses: actions/checkout@v2  
-      - name: Run test on Runner
+          sudo ./entrypoint.sh          
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
         run: |
-          sudo ./entrypoint.sh
-
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-} >> $GITHUB_ENV          
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG" || true
+      - name: test in Docker
+        run: |
+          docker run --rm "$DOCKER_TAG"
 
 
   test_latest_version_v1:
@@ -73,23 +77,27 @@ jobs:
     runs-on: ubuntu-latest
     name: latest v1
     env:
-      AWS_CLI_VERSION: 1   
-    steps:    
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
+      AWS_CLI_VERSION: 1    
+    steps:
+      - uses: actions/checkout@v2
+      - name: test on Runner
         run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-      - uses: actions/checkout@v2 
-      - name: Run test on Runner
+          sudo ./entrypoint.sh          
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
         run: |
-          sudo ./entrypoint.sh
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-} >> $GITHUB_ENV          
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG" || true
+      - name: test in Docker
+        run: |
+          docker run --rm "$DOCKER_TAG" $AWS_CLI_VERSION
 
 
   test_latest_version_v2:
@@ -97,23 +105,27 @@ jobs:
     runs-on: ubuntu-latest
     name: latest v2
     env:
-      AWS_CLI_VERSION: 2  
+      AWS_CLI_VERSION: 2
     steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
-        run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
       - uses: actions/checkout@v2
-      - name: Run test on Runner
+      - name: test on Runner
         run: |
-          sudo ./entrypoint.sh
+          sudo ./entrypoint.sh          
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
+        run: |
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-} >> $GITHUB_ENV          
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG" || true
+      - name: test in Docker
+        run: |
+          docker run --rm "$DOCKER_TAG" $AWS_CLI_VERSION
 
 
   test_specific_v1:
@@ -123,21 +135,25 @@ jobs:
     env:
       AWS_CLI_VERSION: 1.18.1
     steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
+      - uses: actions/checkout@v2
+      - name: test on Runner
         run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-      - uses: actions/checkout@v2 
-      - name: Run test on Runner
+          sudo ./entrypoint.sh          
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
         run: |
-          sudo ./entrypoint.sh
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-} >> $GITHUB_ENV          
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG" || true
+      - name: test in Docker
+        run: |
+          docker run --rm "$DOCKER_TAG" $AWS_CLI_VERSION
 
 
   test_specific_v2:
@@ -147,18 +163,22 @@ jobs:
     env:
       AWS_CLI_VERSION: 2.0.30
     steps:
-      - name: Download Docker Image (Artifact)
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-artifact
-          path: path/to/artifacts
-      - name: Run test in Docker
+      - uses: actions/checkout@v2
+      - name: test on Runner
         run: |
-          cd path/to/artifacts
-          docker load < docker-image.tar
-          export DOCKER_FULLTAG=$(cat docker-tag)
-          docker run --rm "$DOCKER_FULLTAG" $AWS_CLI_VERSION
-      - uses: actions/checkout@v2 
-      - name: Run test on Runner
+          sudo ./entrypoint.sh          
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
         run: |
-          sudo ./entrypoint.sh
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-} >> $GITHUB_ENV          
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG" || true
+      - name: test in Docker
+        run: |
+          docker run --rm "$DOCKER_TAG" $AWS_CLI_VERSION
