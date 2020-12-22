@@ -41,6 +41,22 @@ msg_log(){
 }
 
 
+detect_os(){
+    local os
+    os="$(uname)"
+    if [[ $os =~ "Darwin" ]]; then
+        _OS="macOS"
+    elif [[ $os =~ "NT" ]]; then
+        # Must use Git Bash
+        _OS="Windows"
+    else
+        # Default is Linux
+        _OS="Linux"
+    fi
+    msg_log "Running on $_OS"
+}
+
+
 set_workdir(){
     mkdir -p "${_WORKDIR}"
     cd "${_WORKDIR}"
@@ -62,7 +78,11 @@ set_download_url(){
     # v1
     if [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
         if [[ $_AWS_CLI_VERSION = "1" ]]; then
-            _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
+            if [[ $_OS = "Linux" || $_OS = "macOS" ]]; then
+                _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
+            elif [[ $_OS = "Windows" ]]; then
+                :
+            fi
         else
             _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle-${_AWS_CLI_VERSION}.zip"
         fi
@@ -70,10 +90,22 @@ set_download_url(){
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         if [[ $_AWS_CLI_VERSION = "2" ]]; then
             # Latest v2
-            _DOWNLOAD_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+            if [[ $_OS = "Linux" ]]; then            
+                _DOWNLOAD_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+            elif [[ $_OS = "macOS" ]]; then
+                _DOWNLOAD_URL="https://awscli.amazonaws.com/AWSCLIV2.pkg"
+            elif [[ $_OS = "Windows" ]]; then
+                :
+            fi
         else
             # Specific v2
-            _DOWNLOAD_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${_AWS_CLI_VERSION}.zip"
+            if [[ $_OS = "Linux" ]]; then
+                _DOWNLOAD_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${_AWS_CLI_VERSION}.zip"
+            elif [[ $_OS = "macOS" ]]; then
+                _DOWNLOAD_URL="https://awscli.amazonaws.com/AWSCLIV2-${_AWS_CLI_VERSION}.pkg"
+            elif [[ $_OS = "Windows" ]]; then
+                :
+            fi
         fi
     fi
     msg_log "_DOWNLOAD_URL = ${_DOWNLOAD_URL}"
@@ -144,11 +176,12 @@ test_aws_cli(){
 
 
 # Main
+detect_os
 set_workdir
 valid_semantic_version
 set_download_url
 check_version_exists
 download_aws_cli
-install_aws_cli
-cleanup
-test_aws_cli
+# install_aws_cli
+# cleanup
+# test_aws_cli
