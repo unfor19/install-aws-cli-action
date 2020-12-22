@@ -172,7 +172,7 @@ install_aws_cli(){
             fi
         elif [[ $_OS = "macOS" ]]; then
             # Fresh install or Update
-            installer -pkg "$_DOWNLOAD_FILENAME" -target /
+            installer -pkg ./"$_DOWNLOAD_FILENAME" -target /
         elif [[ $_OS = "Windows" ]]; then
             :
         fi
