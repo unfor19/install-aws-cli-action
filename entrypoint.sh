@@ -142,24 +142,40 @@ download_aws_cli(){
 
 install_aws_cli(){
     local aws_path
-    msg_log "Unzipping ${_DOWNLOAD_FILENAME}"
-    unzip -qq "$_DOWNLOAD_FILENAME"
-    [[ $_VERBOSE = "true" ]] && ls -lah
-    wait
     msg_log "Installing AWS CLI - ${_AWS_CLI_VERSION}"
     if [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
-        ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+        if [[ $_OS = "Linux" || $_OS = "macOS" ]]; then
+            msg_log "Unzipping ${_DOWNLOAD_FILENAME}"
+            unzip -qq "$_DOWNLOAD_FILENAME"
+            [[ $_VERBOSE = "true" ]] && ls -lah
+            wait
+            ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+        elif [[ $_OS = "Windows" ]]; then
+            :
+        fi
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
-        set +e
-        aws_path=$(which aws)
-        [[ -n $aws_path ]] && msg_log "aws_path = $aws_path"
-        set -e
-        if [[ $aws_path =~ ^.*aws.*not.*found || -z $aws_path ]]; then
-            # Fresh install
-            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli        
-        else
-            # Update
-            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+        if [[ $_OS = "Linux" ]]; then
+            set +e
+            aws_path=$(which aws)
+            [[ -n $aws_path ]] && msg_log "aws_path = $aws_path"
+            set -e        
+            msg_log "Unzipping ${_DOWNLOAD_FILENAME}"
+            unzip -qq "$_DOWNLOAD_FILENAME"
+            [[ $_VERBOSE = "true" ]] && ls -lah
+            wait
+            if [[ $aws_path =~ ^.*aws.*not.*found || -z $aws_path ]]; then
+                # Fresh install
+                ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli        
+            else
+                # Update
+                ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+            fi
+        elif [[ $_OS = "macOS" ]]; then
+            # Fresh install or Update
+            _DOWNLOAD_FILENAME=${_DOWNLOAD_FILENAME//\.zip/\.pkg}
+            installer -pkg "$_DOWNLOAD_FILENAME" -target /
+        elif [[ $_OS = "Windows" ]]; then
+            :
         fi
     fi
     msg_log "Installation completed"
@@ -189,6 +205,6 @@ valid_semantic_version
 set_download_url
 check_version_exists
 download_aws_cli
-# install_aws_cli
-# cleanup
-# test_aws_cli
+install_aws_cli
+cleanup
+test_aws_cli
