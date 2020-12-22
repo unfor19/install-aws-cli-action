@@ -27,7 +27,7 @@ runs:
         echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
-      run: sudo ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
+      run: sudo --preserve-env ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
       shell: bash
     - id: set-output
       run: echo "::set-output name=version::$(aws --version)"
