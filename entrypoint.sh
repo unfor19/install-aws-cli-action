@@ -41,6 +41,11 @@ msg_log(){
 }
 
 
+detect_verbose(){
+    msg_log "Verbose mode = ${_VERBOSE}"
+}
+
+
 detect_bash(){
     msg_log "Detecting Bash version ..."
     bash --version
@@ -197,6 +202,7 @@ test_aws_cli(){
 
 
 # Main
+detect_verbose
 detect_bash
 detect_os
 set_workdir
