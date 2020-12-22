@@ -10,7 +10,7 @@ jobs:
       GH_OWNER: unfor19
       GH_REPO: install-aws-cli-action-test
       GH_WORKFLOW: test-action.yml
-      GH_REF: master
+      GH_REF: feature/multiple-os
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Workflow Dispatch
