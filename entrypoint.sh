@@ -22,7 +22,8 @@ _DOWNLOAD_FILENAME="unfor19-awscli.zip"
 _VERBOSE=${VERBOSE:-"false"}
 _DEFAULT_VERSION=2
 _AWS_CLI_VERSION=${1:-$AWS_CLI_VERSION} # Use env or arg
-_AWS_CLI_VERSION=${_AWS_CLI_VERSION^^} # All uppercase
+# _AWS_CLI_VERSION=${_AWS_CLI_VERSION^^} # All uppercase
+_AWS_CLI_VERSION=${_AWS_CLI_VERSION//v/} # Remove "v"
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION//V/} # Remove "V"
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION:-$_DEFAULT_VERSION}
 _DOWNLOAD_URL=""
@@ -38,6 +39,12 @@ msg_error(){
 msg_log(){
     msg=$1
     echo -e ">> [LOG]: ${msg}"
+}
+
+
+detect_bash(){
+    msg_log "Detecting Bash version ..."
+    bash --version
 }
 
 
@@ -176,6 +183,7 @@ test_aws_cli(){
 
 
 # Main
+detect_bash
 detect_os
 set_workdir
 valid_semantic_version
