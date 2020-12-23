@@ -92,7 +92,7 @@ set_download_url(){
             if [[ $_OS = "Linux" || $_OS = "macOS" ]]; then
                 _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
             elif [[ $_OS = "Windows" ]]; then
-                :
+                _DOWNLOAD_URL="Not needed"
             fi
         else
             _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle-${_AWS_CLI_VERSION}.zip"
@@ -124,24 +124,28 @@ set_download_url(){
 
 
 check_version_exists(){
-    msg_log "Checking if the provided version exists in AWS"
-    local exists
-    set +e
-    exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 | grep 'HTTP/1.1 200 OK')
-    set -e
-    if [[ -n $exists ]]; then
-        msg_log "Provided version exists - ${_AWS_CLI_VERSION}"
-    else
-        msg_error "Provided version does not exist - ${_AWS_CLI_VERSION}"
+    if [[ $_OS = "Linux" || $_OS = "macOS" ]]; then
+        msg_log "Checking if the provided version exists in AWS"
+        local exists
+        set +e
+        exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 | grep 'HTTP/1.1 200 OK')
+        set -e
+        if [[ -n $exists ]]; then
+            msg_log "Provided version exists - ${_AWS_CLI_VERSION}"
+        else
+            msg_error "Provided version does not exist - ${_AWS_CLI_VERSION}"
+        fi
     fi
 }
 
 
 download_aws_cli(){
-    msg_log "Downloading ..."
-    wget -q -O "$_DOWNLOAD_FILENAME" "$_DOWNLOAD_URL"
-    [[ $_VERBOSE = "true" ]] && ls -lah "$_DOWNLOAD_FILENAME"
-    wait
+    if [[ $_OS = "Linux" || $_OS = "macOS" ]]; then
+        msg_log "Downloading ..."
+        wget -q -O "$_DOWNLOAD_FILENAME" "$_DOWNLOAD_URL"
+        [[ $_VERBOSE = "true" ]] && ls -lah "$_DOWNLOAD_FILENAME"
+        wait
+    fi
 }
 
 
@@ -156,7 +160,13 @@ install_aws_cli(){
             wait
             ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
         elif [[ $_OS = "Windows" ]]; then
-            :
+            if [[ $_AWS_CLI_VERSION = "1" ]]; then
+                # Latest v1
+                pip3 install awscli --upgrade --user
+            else
+                # Specific v1
+                pip3 install awscli="$_AWS_CLI_VERSION" --upgrade --user
+            fi
         fi
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         if [[ $_OS = "Linux" ]]; then

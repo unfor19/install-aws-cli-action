@@ -27,7 +27,15 @@ runs:
         echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
-      run: sudo --preserve-env ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
+      run: |
+        is_sudo=$(sudo 2>&1 1>/dev/null || true)
+        if [[ $is_sudo =~ "not found" ]]; then
+          # Windows
+          ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
+        else
+          # Linux or macOS
+          sudo --preserve-env ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
+        fi
       shell: bash
     - id: set-output
       run: echo "::set-output name=version::$(aws --version)"
