@@ -228,11 +228,10 @@ install_aws_cli(){
             local pwsh_path
             local pwsh_script_path
             pwsh_script_path="install_with_pwsh.ps1"
-            pwsh_path=$(which pwsh)
             msi_filename=${_DOWNLOAD_FILENAME//\.zip/\.msi}
             mv "$_DOWNLOAD_FILENAME" "$msi_filename"
             cat <<EOT >> "$pwsh_script_path"
-#!"${pwsh_path}"
+#!/usr/bin/env pwsh
 \$MSIArguments = @(
     "/i"
     (-f $msi_filename)
