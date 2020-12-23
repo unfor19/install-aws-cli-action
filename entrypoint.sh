@@ -52,6 +52,27 @@ detect_bash(){
 }
 
 
+detect_download_tool(){
+    # Prefers wget over curl
+    local result_wget
+    local result_curl
+    msg_log "Detecting download tool ..."
+    result_wget=$(wget --version 2>&1 || true)
+    if [[ $result_wget =~ not.*found ]]; then
+        result_curl=$(curl --version 2>&1 || true)
+        if [[ $result_curl =~ not.*found ]]; then
+            msg_error "Required: wget or curl"
+        else
+        # found curl
+            _DOWNLOAD_TOOL="curl"
+        fi
+    else # found wget
+        _DOWNLOAD_TOOL="wget"
+    fi
+
+}
+
+
 detect_os(){
     local os
     os="$(uname)"
@@ -128,9 +149,13 @@ check_version_exists(){
     if [[ $_OS = "Linux" || $_OS = "macOS" ]] || [[ $_OS = "Windows" && $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         msg_log "Checking if the provided version exists in AWS"
         local exists
-        exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 || true)
+        if [[ $_DOWNLOAD_TOOL = "wget" ]]; then
+            exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 || true)
+        elif [[ $_DOWNLOAD_TOOL = "curl" ]]; then
+            exists=$(curl -s -o /dev/null -w "%{http_code}" "$_DOWNLOAD_URL" 2>&1 || true)
+        fi
         msg_log "Exists: $exists"
-        if [[ $exists =~ 200.*OK ]]; then
+        if [[ $exists =~ 200 ]]; then
             msg_log "Provided version exists - ${_AWS_CLI_VERSION}"
         else
             msg_error "Provided version does not exist - ${_AWS_CLI_VERSION}"
@@ -140,11 +165,18 @@ check_version_exists(){
 
 
 download_aws_cli(){
-    if [[ $_OS = "Linux" || $_OS = "macOS" ]]; then
-        msg_log "Downloading ..."
-        wget -q -O "$_DOWNLOAD_FILENAME" "$_DOWNLOAD_URL"
-        [[ $_VERBOSE = "true" ]] && ls -lah "$_DOWNLOAD_FILENAME"
-        wait
+    if [[ $_DOWNLOAD_URL != "Not Needed" ]]; then
+        if [[ $_OS = "Linux" || $_OS = "macOS" ]] || [[ $_OS = "Windows" && $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
+            msg_log "Downloading ..."
+            if [[ $_DOWNLOAD_TOOL = "wget" ]]; then
+                wget -q -O "$_DOWNLOAD_FILENAME" "$_DOWNLOAD_URL"
+            elif [[ $_DOWNLOAD_TOOL = "curl" ]]; then
+                curl -s -o "$_DOWNLOAD_FILENAME" "$_DOWNLOAD_URL"
+            fi 
+        fi
+    [[ $_VERBOSE = "true" ]] && ls -lah "$_DOWNLOAD_FILENAME"
+    wait
+    msg_log "Finished downloading"
     fi
 }
 
@@ -218,10 +250,16 @@ test_aws_cli(){
 
 
 install_lightsailctl(){
+    _LIGHTSAIL_URL="https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
+    _LIGHTSTAIL_FILEPATH="/usr/local/bin/lightsailctl"
     if [[ $_LIGHTSAIL_INSTALL = "true" ]]; then
         if [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
             msg_log "Installing Lightsailctl"
-            wget -q -O "/usr/local/bin/lightsailctl" "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
+            if [[ $_DOWNLOAD_TOOL = "wget" ]]; then
+                wget -q -O "$_LIGHTSTAIL_FILEPATH" "$_LIGHTSAIL_URL"
+            elif [[ $_DOWNLOAD_TOOL = "curl" ]]; then
+                curl -s -o "$_LIGHTSTAIL_FILEPATH" "$_LIGHTSAIL_URL"
+            fi
             wait
             chmod +x /usr/local/bin/lightsailctl
             msg_log "Installation complete"
@@ -250,6 +288,7 @@ test_lightsailctl(){
 # Main
 detect_verbose
 detect_bash
+detect_download_tool
 detect_os
 set_workdir
 valid_semantic_version
