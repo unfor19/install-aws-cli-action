@@ -32,7 +32,7 @@ runs:
         if [[ $is_sudo =~ "not found" ]]; then
           # Windows
           action_path=${{ github.action_path }}
-          action_path=${action_path//\/}
+          action_path=${action_path//\/\/}
           bash "${action_path//\/}\\entrypoint.sh" $AWS_CLI_VERSION
         else
           # Linux or macOS
