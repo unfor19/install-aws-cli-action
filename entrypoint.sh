@@ -234,7 +234,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-Package -Name "*"
+Get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall"
 
 Get-Package -Name "${aws_package_name}" | Uninstall-Package -Confirm -Force -AllVersions
 
