@@ -233,10 +233,8 @@ install_aws_cli(){
             mv "$_DOWNLOAD_FILENAME" "$msi_filename"
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
-
-
+Get-Package
 Get-Package -Name "${aws_package_name}" | Uninstall-Package -Confirm -Force -AllVersions
-
 \$MSIArguments = @(
     "/i"
     "${msi_filename}"
