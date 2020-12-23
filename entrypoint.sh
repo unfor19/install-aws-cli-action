@@ -106,7 +106,7 @@ set_download_url(){
             elif [[ $_OS = "macOS" ]]; then
                 _DOWNLOAD_URL="https://awscli.amazonaws.com/AWSCLIV2.pkg"
             elif [[ $_OS = "Windows" ]]; then
-                :
+                _DOWNLOAD_URL="https://awscli.amazonaws.com/AWSCLIV2.msi"
             fi
         else
             # Specific v2
@@ -115,7 +115,7 @@ set_download_url(){
             elif [[ $_OS = "macOS" ]]; then
                 _DOWNLOAD_URL="https://awscli.amazonaws.com/AWSCLIV2-${_AWS_CLI_VERSION}.pkg"
             elif [[ $_OS = "Windows" ]]; then
-                :
+                _DOWNLOAD_URL="https://awscli.amazonaws.com/AWSCLIV2-${_AWS_CLI_VERSION}.msi"
             fi
         fi
     fi
@@ -124,7 +124,7 @@ set_download_url(){
 
 
 check_version_exists(){
-    if [[ $_OS = "Linux" || $_OS = "macOS" ]]; then
+    if [[ $_OS = "Linux" || $_OS = "macOS" ]] || [[ $_OS = "Windows" && $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         msg_log "Checking if the provided version exists in AWS"
         local exists
         set +e
@@ -192,7 +192,10 @@ install_aws_cli(){
             mv "$_DOWNLOAD_FILENAME" "$pkg_filename"
             installer -pkg ./"$pkg_filename" -target /
         elif [[ $_OS = "Windows" ]]; then
-            :
+            local msi_filename
+            msi_filename=${_DOWNLOAD_FILENAME//\.zip/\.msi}
+            mv "$_DOWNLOAD_FILENAME" "$msi_filename"
+            msiexec /ia /qn /passive /Li "$msi_filename"
         fi
     fi
     msg_log "Installation completed"
