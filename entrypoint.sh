@@ -231,6 +231,9 @@ install_aws_cli(){
             mv "$_DOWNLOAD_FILENAME" "$msi_filename"
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
+
+Get-WmiObject -Class Win32_Product | Select-Object -Property Name
+
 \$MSIArguments = @(
     "/i"
     "$msi_filename"
