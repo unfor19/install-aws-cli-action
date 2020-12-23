@@ -236,7 +236,8 @@ install_aws_cli(){
     "$msi_filename"
     "/qn"
     "/norestart"
-    "/L*V ${pwsh_file}.log"
+    "/L*V"
+    "${pwsh_file}.log"
 )
 Start-Process "msiexec.exe" -ArgumentList \$MSIArguments -Wait -NoNewWindow 
 EOT
