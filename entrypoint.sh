@@ -236,15 +236,8 @@ install_aws_cli(){
 
 Get-CimInstance -ClassName Win32_Product
 
+\$MSIArguments = @( "/i" , "${msi_filename}" , "/qn" , "/norestart" , "/L*V" , "${pwsh_file}.log")
 
-\$MSIArguments = @(
-    "/i"
-    "${msi_filename}"
-    "/qn"
-    "/norestart"
-    "/L*V"
-    "${pwsh_file}.log"
-)
 Start-Process "msiexec.exe" -ArgumentList \$MSIArguments -Wait -NoNewWindow 
 EOT
             chmod +x "$pwsh_file.ps1"
