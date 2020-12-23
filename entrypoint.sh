@@ -225,9 +225,24 @@ install_aws_cli(){
             installer -pkg ./"$pkg_filename" -target /
         elif [[ $_OS = "Windows" ]]; then
             local msi_filename
+            local pwsh_path
+            local pwsh_script_path
+            pwsh_script_path="install_with_pwsh.ps1"
+            pwsh_path=$(which pwsh)
             msi_filename=${_DOWNLOAD_FILENAME//\.zip/\.msi}
             mv "$_DOWNLOAD_FILENAME" "$msi_filename"
-            msiexec /ia /qn /Li "$msi_filename"
+            cat <<EOT >> "$pwsh_script_path"
+#!$pwsh_path
+\$MSIArguments = @(
+    "/i"
+    (-f $msi_filename)
+    "/qn"
+    "/norestart"
+)
+Start-Process "msiexec.exe" -ArgumentList \$MSIArguments -Wait -NoNewWindow 
+EOT
+            chmod +x "$pwsh_script_path"
+            ./"$pwsh_script_path"
         fi
     fi
     msg_log "Installation completed"
