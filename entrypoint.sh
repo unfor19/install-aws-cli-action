@@ -258,8 +258,11 @@ cleanup(){
 
 
 test_aws_cli(){
-    msg_log "Printing AWS CLI installed version"
-    aws --version
+    # Skip test on windows, need to open a new command line for that
+    if [[ $_OS != "Windows" ]]; then
+        msg_log "Printing AWS CLI installed version"
+        aws --version
+    fi
 }
 
 
