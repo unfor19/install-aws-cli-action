@@ -127,9 +127,8 @@ check_version_exists(){
     if [[ $_OS = "Linux" || $_OS = "macOS" ]] || [[ $_OS = "Windows" && $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         msg_log "Checking if the provided version exists in AWS"
         local exists
-        set +e
-        exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 | grep 'HTTP/1.1 200 OK')
-        set -e
+        exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 | grep 'HTTP/1.1 200 OK' 2>&1 || true)
+        msg_log "Exists: $exists"
         if [[ -n $exists ]]; then
             msg_log "Provided version exists - ${_AWS_CLI_VERSION}"
         else
