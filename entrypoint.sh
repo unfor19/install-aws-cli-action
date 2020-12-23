@@ -234,7 +234,7 @@ install_aws_cli(){
 #!/usr/bin/env pwsh
 \$MSIArguments = @(
     "/i"
-    (-f $msi_filename)
+    "$msi_filename"
     "/qn"
     "/norestart"
 )
