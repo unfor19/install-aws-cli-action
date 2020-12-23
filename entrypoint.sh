@@ -241,8 +241,8 @@ install_aws_cli(){
 )
 Start-Process "msiexec.exe" -ArgumentList \$MSIArguments -Wait -NoNewWindow 
 EOT
-            chmod +x "$pwsh_file"
-            ./"$pwsh_file"
+            chmod +x "$pwsh_file.ps1"
+            ./"$pwsh_file.ps1"
             cat "${pwsh_file}.log"
         fi
     fi
