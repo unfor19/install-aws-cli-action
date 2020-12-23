@@ -95,6 +95,7 @@ set_download_url(){
                 _DOWNLOAD_URL="Not needed"
             fi
         else
+            # Specific v1 - same for any OS
             _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle-${_AWS_CLI_VERSION}.zip"
         fi
     # v2
@@ -127,9 +128,9 @@ check_version_exists(){
     if [[ $_OS = "Linux" || $_OS = "macOS" ]] || [[ $_OS = "Windows" && $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
         msg_log "Checking if the provided version exists in AWS"
         local exists
-        exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 | grep 'HTTP/1.1 200 OK' 2>&1 || true)
+        exists=$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 || true)
         msg_log "Exists: $exists"
-        if [[ -n $exists ]]; then
+        if [[ $exists =~ 200.*OK ]]; then
             msg_log "Provided version exists - ${_AWS_CLI_VERSION}"
         else
             msg_error "Provided version does not exist - ${_AWS_CLI_VERSION}"
