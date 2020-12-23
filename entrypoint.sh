@@ -69,7 +69,7 @@ detect_download_tool(){
     else # found wget
         _DOWNLOAD_TOOL="wget"
     fi
-
+    msg_log "Download tool: $_DOWNLOAD_TOOL"
 }
 
 
