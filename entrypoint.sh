@@ -162,10 +162,10 @@ install_aws_cli(){
         elif [[ $_OS = "Windows" ]]; then
             if [[ $_AWS_CLI_VERSION = "1" ]]; then
                 # Latest v1
-                pip3 install awscli --upgrade --user
+                pip3 install awscli --upgrade
             else
                 # Specific v1
-                pip3 install awscli=="$_AWS_CLI_VERSION" --upgrade --user
+                pip3 install awscli=="$_AWS_CLI_VERSION" --upgrade
             fi
         fi
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
