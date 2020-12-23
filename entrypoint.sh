@@ -165,7 +165,7 @@ install_aws_cli(){
                 pip3 install awscli --upgrade --user
             else
                 # Specific v1
-                pip3 install awscli="$_AWS_CLI_VERSION" --upgrade --user
+                pip3 install awscli=="$_AWS_CLI_VERSION" --upgrade --user
             fi
         fi
     elif [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
