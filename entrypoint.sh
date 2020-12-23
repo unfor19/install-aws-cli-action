@@ -226,18 +226,19 @@ install_aws_cli(){
         elif [[ $_OS = "Windows" ]]; then
             local msi_filename
             local pwsh_file
+            local aws_package_name
+            aws_package_name="AWS Command Line Interface v2"
             pwsh_file="install_with_pwsh"
             msi_filename=${_DOWNLOAD_FILENAME//\.zip/\.msi}
             mv "$_DOWNLOAD_FILENAME" "$msi_filename"
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-\$InstalledSoftware = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall"
-foreach(\$obj in \$InstalledSoftware){write-host \$obj.GetValue('DisplayName') -NoNewline; write-host " - " -NoNewline; write-host \$obj.GetValue('DisplayVersion')}
+Uninstall-Package -Name "${aws_package_name}" -Confirm -Force -AllVersions
 
 \$MSIArguments = @(
     "/i"
-    "$msi_filename"
+    "${msi_filename}"
     "/qn"
     "/norestart"
     "/L*V"
