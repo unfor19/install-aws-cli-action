@@ -31,7 +31,7 @@ runs:
         is_sudo=$(sudo 2>&1 1>/dev/null || true)
         if [[ $is_sudo =~ "not found" ]]; then
           # Windows
-          ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
+          bash ${{ github.action_path }}\\entrypoint.sh $AWS_CLI_VERSION
         else
           # Linux or macOS
           sudo --preserve-env ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
