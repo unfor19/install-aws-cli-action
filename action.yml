@@ -33,7 +33,8 @@ runs:
           # Windows
           ls # current dir
           ls -lah D:/a/_actions/unfor19/install-aws-cli-action/feature/multiple-os
-          find D:/a/_actions -type f -name *unfor19/install-aws-cli-action/*entrypoint.sh -exec bash {} $AWS_CLI_VERSION \;
+          # find D:/a/_actions -type f -name *unfor19/install-aws-cli-action/*entrypoint.sh -exec bash {} $AWS_CLI_VERSION \;
+          bash D:/a/_actions/unfor19/install-aws-cli-action/feature/multiple-os/entrypoint.sh $AWS_CLI_VERSION
         else
           # Linux or macOS
           sudo --preserve-env ${{ github.action_path }}/entrypoint.sh $AWS_CLI_VERSION
