@@ -31,7 +31,7 @@ runs:
         is_sudo=$(sudo 2>&1 1>/dev/null || true)
         if [[ $is_sudo =~ "not found" ]]; then
           # Windows
-          aws_path=$(which aws 2>&1 1>/dev/null || true)
+          aws_path=$(which aws 2>&1 || true)
           rm -rf "$aws_path"
           ls -lah D:/a/_actions/unfor19/install-aws-cli-action/feature/multiple-os
           # find D:/a/_actions -type f -name *unfor19/install-aws-cli-action/*entrypoint.sh -exec bash {} $AWS_CLI_VERSION \;
