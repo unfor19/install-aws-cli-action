@@ -234,7 +234,8 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Uninstall-Package -Name "${aws_package_name}" -Confirm -Force -AllVersions
+
+Get-Package -Name "${aws_package_name}" | Uninstall-Package -Confirm -Force -AllVersions
 
 \$MSIArguments = @(
     "/i"
