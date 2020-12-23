@@ -232,7 +232,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-WmiObject -Class Win32_Product | Select-Object -Property Name
+Get-Package -Provider Programs -IncludeWindowsInstaller -Name "*"
 
 \$MSIArguments = @(
     "/i"
