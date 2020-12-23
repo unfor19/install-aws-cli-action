@@ -31,6 +31,7 @@ runs:
         is_sudo=$(sudo 2>&1 1>/dev/null || true)
         if [[ $is_sudo =~ "not found" ]]; then
           # Windows
+          ls -lah D:/a/actions
           find D:/a/actions -type f -name unfor19/install-aws-cli-action*/entrypoint.sh -exec bash {} $AWS_CLI_VERSION \;
         else
           # Linux or macOS
