@@ -236,8 +236,6 @@ install_aws_cli(){
 
 Get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall"
 
-Get-Package -Name "${aws_package_name}" | Uninstall-Package -Confirm -Force -AllVersions
-
 \$MSIArguments = @(
     "/i"
     "${msi_filename}"
