@@ -26,7 +26,7 @@ _AWS_CLI_VERSION=${_AWS_CLI_VERSION//v/} # Remove "v"
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION//V/} # Remove "V"
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION:-$_DEFAULT_VERSION}
 _DOWNLOAD_URL=""
-
+_LIGHTSAIL_INSTALL=${LIGHTSAILCTL:-"false"}
 
 msg_error(){
     msg=$1
@@ -214,6 +214,36 @@ test_aws_cli(){
 }
 
 
+install_lightsailctl(){
+    if [[ $_LIGHTSAIL_INSTALL = "true" ]]; then
+        if [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
+            msg_log "Installing Lightsailctl"
+            wget -q -O "/usr/local/bin/lightsailctl" "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
+            wait
+            chmod +x /usr/local/bin/lightsailctl
+            msg_log "Installation complete"
+        else
+            msg_error "Cannot install Lightsail plugin with CLI 1.x"
+        fi
+    fi
+}
+
+
+test_lightsailctl(){
+  local installed_lightsail
+  if [[ $_LIGHTSAIL_INSTALL = "true" ]]; then
+    set +e
+    installed_lightsail=$(lightsailctl 2>&1 | grep "it is meant to be invoked by AWS CLI")
+    set -e
+    if [[ -n $installed_lightsail ]]; then
+      msg_log "Lightsail was installed successfully"
+    else
+      error_msg "Failed to install lightsailctl"
+    fi
+  fi
+}
+
+
 # Main
 detect_verbose
 detect_bash
@@ -224,5 +254,7 @@ set_download_url
 check_version_exists
 download_aws_cli
 install_aws_cli
+install_lightsailctl
 cleanup
 test_aws_cli
+test_lightsailctl
