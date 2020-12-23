@@ -227,7 +227,7 @@ install_aws_cli(){
             local msi_filename
             msi_filename=${_DOWNLOAD_FILENAME//\.zip/\.msi}
             mv "$_DOWNLOAD_FILENAME" "$msi_filename"
-            msiexec /ia /qn /passive /Li "$msi_filename"
+            msiexec /ia /qn /Li "$msi_filename"
         fi
     fi
     msg_log "Installation completed"
