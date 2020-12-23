@@ -234,8 +234,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-\$InstalledSoftware = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall"
-foreach(\$obj in \$InstalledSoftware){write-host \$_.PSChildName -match '^{[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}}\$') -and (\$_.GetValue('DisplayName') -like "$aws_package_name") }
+Get-CimInstance -ClassName Win32_Process
 
 
 \$MSIArguments = @(
