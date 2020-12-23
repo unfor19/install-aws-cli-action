@@ -234,7 +234,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-CimInstance -ClassName Win32_Process
+Get-CimInstance -ClassName Win32_Service -Filter "name='*aws*'"
 
 
 \$MSIArguments = @(
