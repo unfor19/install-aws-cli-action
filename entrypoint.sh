@@ -232,7 +232,7 @@ install_aws_cli(){
             msi_filename=${_DOWNLOAD_FILENAME//\.zip/\.msi}
             mv "$_DOWNLOAD_FILENAME" "$msi_filename"
             cat <<EOT >> "$pwsh_script_path"
-#!$pwsh_path
+#!"${pwsh_path}"
 \$MSIArguments = @(
     "/i"
     (-f $msi_filename)
