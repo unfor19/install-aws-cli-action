@@ -236,7 +236,7 @@ install_aws_cli(){
 
 Get-ItemProperty -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion
 
-\$InstalledSoftware = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" | ForEach-Object {Get-ItemProperty "Registry::$_"}
+\$InstalledSoftware = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" | ForEach-Object {Get-ItemProperty "Registry::\$_"}
 Write-Output \$InstalledSoftware
 
 Get-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall
