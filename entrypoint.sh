@@ -234,7 +234,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall
+Get-ItemProperty -Path Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall
 
 EOT
             chmod +x "$pwsh_file.ps1"
