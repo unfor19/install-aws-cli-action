@@ -234,22 +234,20 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-CimInstance -Class Win32_Product -Filter "Name='${aws_package_name}'" | Invoke-CimMethod -MethodName Uninstall > ${pwsh_file}-uninstall.log
+Get-CimInstance -Class Win32_Product -Filter "Name='${aws_package_name}'" | Invoke-CimMethod -MethodName Uninstall
 
 \$MSIArguments = @(
     "/i"
     "${msi_filename}"
     "/qn"
     "/norestart"
-    "/L*V"
-    "${pwsh_file}.log"
 )
 Start-Process "msiexec.exe" -ArgumentList \$MSIArguments -Wait -NoNewWindow 
 EOT
             chmod +x "$pwsh_file.ps1"
             cat "$pwsh_file.ps1"
             ./"$pwsh_file.ps1"
-            cat "${pwsh_file}.log"
+            # cat "${pwsh_file}.log"
         fi
     fi
     msg_log "Installation completed"
