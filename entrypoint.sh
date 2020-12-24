@@ -234,7 +234,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-CimInstance -ClassName Win32_Product -Filter "Name='AWS*'"
+Get-CimInstance -ClassName Win32_Product | SELECT Name WHERE Name LIKE "%AWS%"
 
 \$MSIArguments = @(
     "/i"
