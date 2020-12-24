@@ -234,7 +234,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-CimInstance -ClassName Win32_Product -Filter "name='*AWS*'"
+Get-CimInstance -ClassName Win32_Product -Filter "name='$aws_package_name'" | Invoke-CimMethod -MethodName Uninstall
 
 
 \$MSIArguments = @(
@@ -245,6 +245,7 @@ Get-CimInstance -ClassName Win32_Product -Filter "name='*AWS*'"
     "/L*V"
     "${pwsh_file}.log"
 )
+
 Start-Process "msiexec.exe" -ArgumentList \$MSIArguments -Wait -NoNewWindow 
 EOT
             chmod +x "$pwsh_file.ps1"
