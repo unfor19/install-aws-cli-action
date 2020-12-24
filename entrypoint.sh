@@ -234,7 +234,7 @@ install_aws_cli(){
             cat <<EOT >> "${pwsh_file}.ps1"
 #!/usr/bin/env pwsh
 
-Get-CimInstance -Class Win32_Product -Filter "Name='${aws_package_name}'" | Invoke-CimMethod -MethodName Uninstall
+Get-CimInstance -Classname Win32_Product | Where-Object Name -Match '${aws_package_name}' | Invoke-CimMethod -MethodName Uninstall
 
 \$MSIArguments = @(
     "/i"
