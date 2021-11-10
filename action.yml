@@ -16,6 +16,10 @@ inputs:
     description: "Install lightsailctl plugin"
     required: false
     default: false
+  arch:
+    description: Architecture of the linux host
+    required: false
+    default: x86
 outputs:
   version:
     description: "The AWS CLI version that was installed"
@@ -30,6 +34,7 @@ runs:
         echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
         echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
         echo "LIGHTSAILCTL=${{ inputs.lightsailctl }}" >> $GITHUB_ENV
+        echo "ARCH=${{ inputs.arch }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
       run: sudo --preserve-env ${{ github.action_path }}/entrypoint.sh
