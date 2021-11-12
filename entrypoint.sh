@@ -26,6 +26,9 @@ _AWS_CLI_VERSION=${_AWS_CLI_VERSION^^} # All uppercase
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION//V/} # Remove "V"
 _AWS_CLI_VERSION=${_AWS_CLI_VERSION:-$_DEFAULT_VERSION}
 _DOWNLOAD_URL=""
+_DEFAULT_ARCH="x86"
+_ARCH=${_ARCH^^}
+_ARCH=${_ARCH:-$_DEFAULT_ARCH}
 _LIGHTSAIL_INSTALL=${LIGHTSAILCTL:-"false"}
 
 msg_error(){
@@ -59,8 +62,13 @@ valid_semantic_version(){
 
 set_download_url(){
     msg_log "Setting _DOWNLOAD_URL"
+    # If arch is aarch64 provided, bypass version check because:
+    # 1. Only version 2 is available for aarch64
+    # 2. Give arch priority over version(if both provided)
+    if [[ $_ARCH = "AARCH64" ]]; then
+        _DOWNLOAD_URL = "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip"
     # v1
-    if [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
+    elif [[ $_AWS_CLI_VERSION =~ ^1.*$ ]]; then
         if [[ $_AWS_CLI_VERSION = "1" ]]; then
             _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
         else

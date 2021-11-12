@@ -28,6 +28,7 @@ Add the following step to a job in your workflow
   with:
     version: 2 # default
     verbose: false # default
+    arch: x86 # default
 ```
 
 ### Full example
@@ -91,6 +92,18 @@ jobs:
         uses: unfor19/install-aws-cli-action@v1
         with:
           version: 2.0.30
+      - run: aws --version
+        shell: bash
+  
+  test_arm:
+    runs-on: ubuntu-latest
+    name: arm architecture
+    steps:
+      - uses: actions/checkout@v2
+      - id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          arch: aarch64
       - run: aws --version
         shell: bash
 ```
