@@ -34,7 +34,7 @@ jobs:
           - TEST_NAME: "Specific v1"
             AWS_CLI_VERSION: "1.16.312"
           - TEST_NAME: "No Input"
-    name: Test amd64 ${{ matrix.TEST_NAME }}
+    name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
       - uses: actions/checkout@v2
       - name: test on Runner
@@ -53,7 +53,7 @@ jobs:
             AWS_CLI_VERSION: "2"
           - TEST_NAME: "Specific v2"
             AWS_CLI_VERSION: "2.0.30"
-    name: Test arm64 ${{ matrix.TEST_NAME }}
+    name: Test arm64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
       - uses: actions/checkout@v2
       - name: Set up QEMU
@@ -63,7 +63,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
-      - name: test on Runner
+      - name: Test in Docker
         env:
           AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
           AWS_CLI_ARCH: "arm64"
