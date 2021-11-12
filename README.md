@@ -33,7 +33,7 @@ Add the following step to a job in your workflow
 
 ### Full example
 
-See [unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml]([./.github/workflows/test.yaml](https://github.com/unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml))
+See [unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml](https://github.com/unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml)
 
 ```yaml
 name: test-action
