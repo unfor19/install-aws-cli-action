@@ -55,16 +55,16 @@ jobs:
     strategy:
       matrix:
         include:
-          - TEST_NAME: Latest v2
+          - TEST_NAME: "Latest v2"
             AWS_CLI_VERSION: "2"
-          - TEST_NAME: Specific v2
+          - TEST_NAME: "Specific v2"
             AWS_CLI_VERSION: "2.0.30"
-          - TEST_NAME: Latest v1
+          - TEST_NAME: "Latest v1"
             AWS_CLI_VERSION: "1"
-          - TEST_NAME: Specific v1
+          - TEST_NAME: "Specific v1"
             AWS_CLI_VERSION: "1.16.312"
-          - TEST_NAME: No Input
-    name: Test
+          - TEST_NAME: "No Input"
+    name: Test ${{ matrix.TEST_NAME }}
     # env:
     #   DOCKER_TAG: ${{ needs.docker_build.outputs.docker_tag }}
     steps:
