@@ -92,7 +92,7 @@ jobs:
           AWS_CLI_ARCH: "arm64"
           DOCKER_TAG: "install-aws-cli-action"
         run: |
-          docker run --rm -it -e AWS_CLI_VERSION -e AWS_CLI_ARCH "${{ steps.prep.outputs.tagged_image }}"
+          docker run --rm -e AWS_CLI_VERSION -e AWS_CLI_ARCH "${{ steps.prep.outputs.tagged_image }}"
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
