@@ -39,15 +39,15 @@ _AWS_CLI_ARCH="${_AWS_CLI_ARCH:-"$_DEFAULT_ARCH"}"
 
 
 msg_error(){
-    msg="$1"
-    echo -e ">> [ERROR]: ${msg}"
+    local msg="$1"
+    echo -e "[ERROR] $(date) :: $msg"
     exit 1
 }
 
 
 msg_log(){
-    msg="$1"
-    echo -e ">> [LOG]: ${msg}"
+    local msg="$1"
+    echo -e "[LOG] $(date) :: $msg"
 }
 
 
