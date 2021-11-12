@@ -18,26 +18,7 @@ set -o pipefail
 ### ----------------------------------------
 
 
-_ROOT_DIR="${PWD}"
-_WORKDIR="${_ROOT_DIR}/unfor19-awscli"
-_DOWNLOAD_FILENAME="unfor19-awscli.zip"
-_VERBOSE=${VERBOSE:-"false"}
-_LIGHTSAIL_INSTALL=${LIGHTSAILCTL:-"false"}
-_DOWNLOAD_URL=""
-
-
-_DEFAULT_VERSION="2"
-_AWS_CLI_VERSION="${1:-"$AWS_CLI_VERSION"}"   # Use env or arg
-_AWS_CLI_VERSION="${_AWS_CLI_VERSION^^}"      # All uppercase
-_AWS_CLI_VERSION="${_AWS_CLI_VERSION//"V"/}"  # Remove "V"
-_AWS_CLI_VERSION="${_AWS_CLI_VERSION:-"$_DEFAULT_VERSION"}"
-
-_DEFAULT_ARCH="amd64"
-_AWS_CLI_ARCH="${2:-"$AWS_CLI_ARCH"}"         # Use env or arg
-_AWS_CLI_ARCH="${_AWS_CLI_ARCH,,}"            # All lowercase
-_AWS_CLI_ARCH="${_AWS_CLI_ARCH:-"$_DEFAULT_ARCH"}"
-
-
+### Functions
 msg_error(){
     local msg="$1"
     echo -e "[ERROR] $(date) :: $msg"
@@ -57,83 +38,102 @@ set_workdir(){
 }
 
 
-valid_semantic_version(){
-    msg_log "Validating semantic version - ${_AWS_CLI_VERSION}"
-    if [[ "$_AWS_CLI_VERSION" =~ ^([1,2]|[1,2](\.[0-9]{1,2}\.[0-9]{1,3}))$ ]]; then
+validate_semantic_version(){
+    local provided_version
+    provided_version="$1"
+    msg_log "Validating semantic version - ${provided_version}"
+    if [[ "$provided_version" =~ ^([1,2]|[1,2](\.[0-9]{1,2}\.[0-9]{1,3}))$ ]]; then
         msg_log "Valid version input"
     else
-        msg_error "Invalid version input \"${_AWS_CLI_VERSION}\", should match: ^([1,2]|[1,2](\.[0-9]{1,2}\.[0-9]{1,3}))$"
+        msg_error "Invalid version input \"${provided_version}\", should match: ^([1,2]|[1,2](\.[0-9]{1,2}\.[0-9]{1,3}))$"
     fi
 }
 
 
-set_download_url(){
-    msg_log "Setting _DOWNLOAD_URL"
+get_download_url(){
+    local provided_version
+    local provided_arch
+    local adjusted_arch=""
+    local download_url=""
+    provided_version="$1"
+    provided_arch="$2"
     # v1
-    if [[ "$_AWS_CLI_VERSION" =~ ^1.*$ ]]; then
-        [[ "$_AWS_CLI_ARCH" != "amd64" ]] && msg_error "AWS CLI v1 does not support ${_AWS_CLI_VERSION}"
-        if [[ "$_AWS_CLI_VERSION" = "1" ]]; then
-            _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
+    if [[ "$provided_version" =~ ^1.*$ ]]; then
+        [[ "$provided_arch" != "amd64" ]] && msg_error "AWS CLI v1 does not support ${_AWS_CLI_VERSION}"
+        if [[ "$provided_version" = "1" ]]; then
+            download_url="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
         else
-            _DOWNLOAD_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle-${_AWS_CLI_VERSION}.zip"
+            download_url="https://s3.amazonaws.com/aws-cli/awscli-bundle-${provided_version}.zip"
         fi
     # v2
-    elif [[ "$_AWS_CLI_VERSION" =~ ^2.*$ ]]; then
+    elif [[ "$provided_version" =~ ^2.*$ ]]; then
         # Check arch
-        if [[ "$_AWS_CLI_ARCH" = "amd64" ]]; then
-            _AWS_CLI_ARCH="x86_64"
-        elif [[ "$_AWS_CLI_ARCH" = "arm64" ]]; then
-            _AWS_CLI_ARCH="aarch64"
+        if [[ "$provided_arch" = "amd64" ]]; then
+            adjusted_arch="x86_64"
+        elif [[ "$provided_arch" = "arm64" ]]; then
+            adjusted_arch="aarch64"
         else
-            msg_error "Invalid arch - ${_AWS_CLI_ARCH}"
+            echo "Invalid arch - ${provided_arch}"
         fi
 
-        if [[ $_AWS_CLI_VERSION = "2" ]]; then
+        if [[ $provided_version = "2" ]]; then
             # Latest v2
-            _DOWNLOAD_URL="https://awscli.amazonaws.com/awscli-exe-linux-${_AWS_CLI_ARCH}.zip"
+            download_url="https://awscli.amazonaws.com/awscli-exe-linux-${adjusted_arch}.zip"
         else
             # Specific v2
-            _DOWNLOAD_URL="https://awscli.amazonaws.com/awscli-exe-linux-${_AWS_CLI_ARCH}-${_AWS_CLI_VERSION}.zip"
+            download_url="https://awscli.amazonaws.com/awscli-exe-linux-${adjusted_arch}-${provided_version}.zip"
         fi
     fi
-    msg_log "Download URL - ${_DOWNLOAD_URL}"
+    echo "$download_url"
 }
 
 
 check_version_exists(){
-    msg_log "Checking if the provided version exists in AWS"
-    local exists
-    exists="$(wget -q -S --spider "$_DOWNLOAD_URL" 2>&1 | grep 'HTTP/1.1 200 OK' || true)"
+    local provided_url
+    local exists=""
+    provided_url="$1"
+    [[ "$_VERBOSE" = "true" ]] && msg_log "Checking if the provided version exists in AWS"
+    exists="$(wget -q -S --spider "$provided_url" 2>&1 | grep 'HTTP/1.1 200 OK' || true)"
     if [[ -n "$exists" ]]; then
-        msg_log "Provided version exists - ${_AWS_CLI_VERSION}"
+        msg_log "Provided version exists - ${provided_url}"
     else
-        msg_error "Provided version does not exist - ${_AWS_CLI_VERSION}"
+        msg_error "Provided version does not exist - ${provided_url}"
     fi
 }
 
 
 download_aws_cli(){
+    local provided_filename
+    local provided_url
+    provided_filename="$1"
+    provided_url="$2"
     msg_log "Downloading ..."
-    wget -q -O "$_DOWNLOAD_FILENAME" "$_DOWNLOAD_URL"
-    [[ "$_VERBOSE" = "true" ]] && ls -lah "$_DOWNLOAD_FILENAME"
+    wget -q -O "$provided_filename" "$provided_url"
+    [[ "$_VERBOSE" = "true" ]] && ls -lah "$provided_filename"
     wait
 }
 
 
 install_aws_cli(){
-    local aws_path
-    msg_log "Unzipping ${_DOWNLOAD_FILENAME}"
-    unzip -qq "$_DOWNLOAD_FILENAME"
+    local provided_filename
+    local provided_version
+    local provided_arch
+    provided_filename="$1"
+    provided_version="$2"
+    provided_arch="$3"
+    msg_log "Unzipping ${provided_filename}"
+    unzip -qq "$provided_filename"
     [[ "$_VERBOSE" = "true" ]] && ls -lah
     wait
-    msg_log "Installing AWS CLI - ${_AWS_CLI_VERSION}"
-    if [[ "$_AWS_CLI_VERSION" =~ ^1.*$ ]]; then
+    msg_log "Installing AWS CLI - ${provided_version}"
+    if [[ "$provided_version" =~ ^1.*$ ]]; then
         ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
-    elif [[ "$_AWS_CLI_VERSION" =~ ^2.*$ ]]; then
+    elif [[ "$provided_version" =~ ^2.*$ ]]; then
+        local aws_path=""
         aws_path=$(which aws || true)
         [[ -n "$aws_path" ]] && msg_log "aws_path = ${aws_path}"
         if [[ "$aws_path" =~ ^qemu-aarch64.* ]]; then
-            msg_error "Failed to install AWS CLI - Make sure AWS_CLI_ARCH is set properly, current value is ${_AWS_CLI_ARCH}"
+            msg_error "Failed to install AWS CLI - Make sure AWS_CLI_ARCH is set properly, current value is ${provided_arch}"
         elif [[ "$aws_path" =~ ^.*aws.*not.*found || -z "$aws_path" ]]; then
             # Fresh install
             ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli
@@ -171,8 +171,10 @@ test_aws_cli(){
 
 
 install_lightsailctl(){
+    local provided_version
+    provided_version="$1"
     if [[ $_LIGHTSAIL_INSTALL = "true" ]]; then
-        if [[ $_AWS_CLI_VERSION =~ ^2.*$ ]]; then
+        if [[ $provided_version =~ ^2.*$ ]]; then
             msg_log "Installing Lightsailctl"
             wget -q -O "/usr/local/bin/lightsailctl" "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
             wait
@@ -198,14 +200,38 @@ test_lightsailctl(){
 }
 
 
-# Main
+### Global Variables
+_ROOT_DIR="${PWD}"
+_WORKDIR="${_ROOT_DIR}/unfor19-awscli"
+_DOWNLOAD_FILENAME="unfor19-awscli.zip"
+_VERBOSE=${VERBOSE:-"false"}
+_LIGHTSAIL_INSTALL=${LIGHTSAILCTL:-"false"}
+_DOWNLOAD_URL=""
+
+_DEFAULT_VERSION="2"
+_AWS_CLI_VERSION="${1:-"$AWS_CLI_VERSION"}"   # Use env or arg
+_AWS_CLI_VERSION="${_AWS_CLI_VERSION^^}"      # All uppercase
+_AWS_CLI_VERSION="${_AWS_CLI_VERSION//"V"/}"  # Remove "V"
+_AWS_CLI_VERSION="${_AWS_CLI_VERSION:-"$_DEFAULT_VERSION"}"
+
+_DEFAULT_ARCH="amd64"
+_AWS_CLI_ARCH="${2:-"$AWS_CLI_ARCH"}"         # Use env or arg
+_AWS_CLI_ARCH="${_AWS_CLI_ARCH,,}"            # All lowercase
+_AWS_CLI_ARCH="${_AWS_CLI_ARCH:-"$_DEFAULT_ARCH"}"
+
+
+### Main
 set_workdir
-valid_semantic_version
-set_download_url
-check_version_exists
-download_aws_cli
-install_aws_cli
-install_lightsailctl
+validate_semantic_version "$_AWS_CLI_VERSION"
+
+# Set Download URL
+_AWS_CLI_DOWNLOAD_URL="${AWS_CLI_DOWNLOAD_URL:-"$(get_download_url "$_AWS_CLI_VERSION" "$_AWS_CLI_ARCH" 2>&1)"}"
+[[ ! "$_AWS_CLI_DOWNLOAD_URL" =~ ^https://.* ]] && msg_error "$_AWS_CLI_DOWNLOAD_URL"
+
+check_version_exists "$_AWS_CLI_DOWNLOAD_URL"
+download_aws_cli "$_DOWNLOAD_FILENAME" "$_AWS_CLI_DOWNLOAD_URL"
+install_aws_cli "$_DOWNLOAD_FILENAME" "$_AWS_CLI_VERSION" "$_AWS_CLI_ARCH"
+install_lightsailctl "$_AWS_CLI_VERSION"
 cleanup
 test_aws_cli
 test_lightsailctl
