@@ -76,9 +76,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-multi-buildx-${{ matrix.AWS_CLI_VERSION }}-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ matrix.AWS_CLI_VERSION }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-multi-buildx-${{ matrix.AWS_CLI_VERSION }}-
+            ${{ runner.os }}-buildx-${{ matrix.AWS_CLI_VERSION }}-
       - name: Build Docker Image
         uses: docker/build-push-action@v2
         with:
