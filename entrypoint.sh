@@ -33,8 +33,10 @@ msg_log(){
 
 
 set_workdir(){
-    mkdir -p "${_WORKDIR}"
-    cd "${_WORKDIR}"
+    local workdir
+    workdir="$1"
+    mkdir -p "$workdir"
+    cd "$workdir"
 }
 
 
@@ -147,16 +149,17 @@ install_aws_cli(){
 
 
 cleanup(){
-    cd "${_ROOT_DIR}"
-    [[ "$_VERBOSE" = "true" ]] && ls -lh
-    rm -r "${_WORKDIR}"
-    [[ "$_VERBOSE" = "true" ]] && ls -lh
+    local workdir
+    workdir="$1"
+    [[ -d "$workdir" ]] && rm -r "$workdir"
     wait
 }
 
 
 test_aws_cli(){
+    local provided_arch
     local test_results
+    provided_arch="$1"
     msg_log "Printing AWS CLI installed version"
     test_results="$(aws --version 2>&1 || true)"
     if [[ "$test_results" =~ ^aws-cli/.*  ]]; then
@@ -164,7 +167,7 @@ test_aws_cli(){
     else
         msg_error "Installation failed - ${test_results}"
         if [[ "$test_results" =~ ^qemu-aarch64.*Could.*not.*open ]]; then
-            msg_log "Make sure AWS_CLI_ARCH is set properly, current value is - ${AWS_CLI_ARCH}"
+            msg_log "Make sure AWS_CLI_ARCH is set properly, current value is - ${provided_arch}"
         fi        
     fi
 }
@@ -173,30 +176,26 @@ test_aws_cli(){
 install_lightsailctl(){
     local provided_version
     provided_version="$1"
-    if [[ $_LIGHTSAIL_INSTALL = "true" ]]; then
-        if [[ $provided_version =~ ^2.*$ ]]; then
-            msg_log "Installing Lightsailctl"
-            wget -q -O "/usr/local/bin/lightsailctl" "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
-            wait
-            chmod +x /usr/local/bin/lightsailctl
-            msg_log "Installation complete"
-        else
-            msg_error "Cannot install Lightsail plugin with CLI 1.x"
-        fi
+    if [[ $provided_version =~ ^2.*$ ]]; then
+        msg_log "Installing Lightsailctl"
+        wget -q -O "/usr/local/bin/lightsailctl" "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
+        wait
+        chmod +x /usr/local/bin/lightsailctl
+        msg_log "Installation complete"
+    else
+        msg_error "Cannot install Lightsail plugin with CLI 1.x"
     fi
 }
 
 
 test_lightsailctl(){
-  local installed_lightsail
-  if [[ "$_LIGHTSAIL_INSTALL" = "true" ]]; then
+    local installed_lightsail
     installed_lightsail=$(lightsailctl 2>&1 | grep "it is meant to be invoked by AWS CLI" || true)
     if [[ -n "$installed_lightsail" ]]; then
-      msg_log "Lightsail was installed successfully"
+        msg_log "Lightsail was installed successfully"
     else
-      error_msg "Failed to install lightsailctl"
+        error_msg "Failed to install lightsailctl"
     fi
-  fi
 }
 
 
@@ -221,17 +220,24 @@ _AWS_CLI_ARCH="${_AWS_CLI_ARCH:-"$_DEFAULT_ARCH"}"
 
 
 ### Main
-set_workdir
+set_workdir "$_WORKDIR"
 validate_semantic_version "$_AWS_CLI_VERSION"
 
-# Set Download URL
+# Set Download URL and check if file exists on server
 _AWS_CLI_DOWNLOAD_URL="${AWS_CLI_DOWNLOAD_URL:-"$(get_download_url "$_AWS_CLI_VERSION" "$_AWS_CLI_ARCH" 2>&1)"}"
 [[ ! "$_AWS_CLI_DOWNLOAD_URL" =~ ^https://.* ]] && msg_error "$_AWS_CLI_DOWNLOAD_URL"
-
 check_version_exists "$_AWS_CLI_DOWNLOAD_URL"
+
+# Download and install AWS CLI
 download_aws_cli "$_DOWNLOAD_FILENAME" "$_AWS_CLI_DOWNLOAD_URL"
 install_aws_cli "$_DOWNLOAD_FILENAME" "$_AWS_CLI_VERSION" "$_AWS_CLI_ARCH"
-install_lightsailctl "$_AWS_CLI_VERSION"
-cleanup
-test_aws_cli
-test_lightsailctl
+test_aws_cli "$_AWS_CLI_ARCH"
+
+# Optional - Install Lightsail plugin
+if [[ "$_LIGHTSAIL_INSTALL" = "true" ]]; then
+    install_lightsailctl "$_AWS_CLI_VERSION"
+    test_lightsailctl
+fi
+
+# Cleanup
+cleanup "$_WORKDIR"
