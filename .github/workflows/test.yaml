@@ -82,6 +82,7 @@ jobs:
           context: .
           builder: ${{ steps.buildx.outputs.name }}
           push: false
+          load: true
           tags: ${{ steps.prep.outputs.tagged_image }}
           cache-from: type=local,src=/tmp/.buildx-cache
           platforms: arm64
