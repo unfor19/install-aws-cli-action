@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Workflow Dispatch
         run: |
-          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          curl --fail -X POST -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/${GH_WORKFLOW}/dispatches \
             -d '{"ref":"'${GH_REF}'"}'
