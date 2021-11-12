@@ -17,14 +17,13 @@ inputs:
     required: false
     default: false
   arch:
-    description: Architecture of the linux host
+    description: Allowed values are - amd64, arm64
     required: false
-    default: x86
+    default: amd64
 outputs:
   version:
     description: "The AWS CLI version that was installed"
     value: ${{ steps.set-output.outputs.version }}
-
 
 runs:
   using: "composite"
@@ -32,9 +31,9 @@ runs:
     - id: set-env-vars
       run: |
         echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+        echo "AWS_CLI_ARCH=${{ inputs.arch }}" >> $GITHUB_ENV        
         echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
         echo "LIGHTSAILCTL=${{ inputs.lightsailctl }}" >> $GITHUB_ENV
-        echo "ARCH=${{ inputs.arch }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
       run: sudo --preserve-env ${{ github.action_path }}/entrypoint.sh
