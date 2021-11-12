@@ -37,7 +37,7 @@ jobs:
     name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
       - uses: actions/checkout@v2
-      - name: test on Runner
+      - name: Test On Runner
         env:
           AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
           AWS_CLI_ARCH: "${{ matrix.AWS_CLI_ARCH }}"
@@ -76,7 +76,7 @@ jobs:
           key: ${{ runner.os }}-multi-buildx-${{ github.sha }}-${{ matrix.AWS_CLI_VERSION }}
           restore-keys: |
             ${{ runner.os }}-multi-buildx
-      - name: Build production image
+      - name: Build Docker Image
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -86,7 +86,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           platforms: arm64
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-      - name: Test in Docker
+      - name: Test In Docker
         env:
           AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
           AWS_CLI_ARCH: "arm64"
