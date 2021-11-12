@@ -1,11 +1,13 @@
 name: test
 
-on: [push, workflow_dispatch]
+on:
+  - push
+  - workflow_dispatch
 
 jobs:
   dispatch_test_action:
-    name: Dispatch test action
-    runs-on: ubuntu-latest
+    name: Dispatch Test Action
+    runs-on: ubuntu-20.04
     env:
       GH_OWNER: unfor19
       GH_REPO: install-aws-cli-action-test
@@ -45,6 +47,7 @@ jobs:
           sudo ./entrypoint.sh
 
   test_arm64:
+    # Supports only v2+
     runs-on: ubuntu-20.04
     strategy:
       matrix:
