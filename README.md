@@ -18,7 +18,7 @@ Valid `version` values:
 - `1.##.##` - specific v1
 - `2.##.##` - specific v2
 
-### Snippet
+### Usage
 
 Add the following step to a job in your workflow
 
@@ -26,84 +26,43 @@ Add the following step to a job in your workflow
 - id: install-aws-cli
   uses: unfor19/install-aws-cli-action@v1
   with:
-    version: 2 # default
+    version: 2     # default
     verbose: false # default
-    arch: x86 # default
+    arch: amd64    # allowed values: amd64, arm64
 ```
 
 ### Full example
 
+See [unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml]([./.github/workflows/test.yaml](https://github.com/unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml))
+
 ```yaml
-on: [push]
+name: test-action
+
+on:
+  push:
 
 jobs:
-  test_no_input:
-    runs-on: ubuntu-latest
-    name: no input
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - TEST_NAME: "Latest v2"
+            AWS_CLI_VERSION: "2"
+          - TEST_NAME: "Specific v2"
+            AWS_CLI_VERSION: "2.0.30"
+          - TEST_NAME: "Latest v1"
+            AWS_CLI_VERSION: "1"
+          - TEST_NAME: "Specific v1"
+            AWS_CLI_VERSION: "1.18.1"
+          - TEST_NAME: "No Input"
+    name: Test ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION }}
     steps:
-      - uses: actions/checkout@v2
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-      - run: aws --version
-        shell: bash
-
-  test_latest_version_v1:
-    runs-on: ubuntu-latest
-    name: latest v1
-    steps:
-      - uses: actions/checkout@v2
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
+      - name: Test ${{ matrix.TEST_NAME }}
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@master
         with:
-          version: 1
-      - run: aws --version
-        shell: bash
-
-  test_latest_version_v2:
-    runs-on: ubuntu-latest
-    name: latest v2
-    steps:
-      - uses: actions/checkout@v2
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          version: 2
-      - run: aws --version
-        shell: bash
-
-  test_specific_v1:
-    runs-on: ubuntu-latest
-    name: specific v1
-    steps:
-      - uses: actions/checkout@v2
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          version: 1.18.1
-      - run: aws --version
-        shell: bash
-
-  test_specific_v2:
-    runs-on: ubuntu-latest
-    name: specific v2
-    steps:
-      - uses: actions/checkout@v2
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          version: 2.0.30
-      - run: aws --version
-        shell: bash
-  
-  test_arm:
-    runs-on: ubuntu-latest
-    name: arm architecture
-    steps:
-      - uses: actions/checkout@v2
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          arch: aarch64
+          version: ${{ matrix.AWS_CLI_VERSION }}
       - run: aws --version
         shell: bash
 ```
