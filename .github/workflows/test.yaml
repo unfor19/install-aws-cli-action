@@ -50,7 +50,7 @@ jobs:
   #     docker_tag: ${{ steps.env_vars.outputs.docker_tag }}
 
   test:
-    needs: docker_build
+    # needs: docker_build
     runs-on: ubuntu-20.04
     strategy:
       matrix:
