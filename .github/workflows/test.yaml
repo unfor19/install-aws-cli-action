@@ -20,7 +20,7 @@ jobs:
             https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/${GH_WORKFLOW}/dispatches \
             -d '{"ref":"'${GH_REF}'"}'
 
-  test:
+  test_amd64:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -43,3 +43,31 @@ jobs:
           AWS_CLI_ARCH: "${{ matrix.AWS_CLI_ARCH }}"
         run: |
           sudo ./entrypoint.sh
+
+  test_arm64:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - TEST_NAME: "Latest v2"
+            AWS_CLI_VERSION: "2"
+          - TEST_NAME: "Specific v2"
+            AWS_CLI_VERSION: "2.0.30"
+    name: Test ${{ matrix.TEST_NAME }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: test on Runner
+        env:
+          AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
+          AWS_CLI_ARCH: "arm64"
+          DOCKER_TAG: "install-aws-cli-action"
+        run: |
+          docker buildx build --platform arm64 -t "$DOCKER_TAG" .
+          docker run --rm -it -e AWS_CLI_VERSION -e AWS_CLI_ARCH "$DOCKER_TAG"
