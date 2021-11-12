@@ -107,3 +107,34 @@ jobs:
       - run: aws --version
         shell: bash
 ```
+
+## Local Development
+
+<details>
+
+<summary>Expand/Collapse</summary>
+
+### Requirements
+
+- Docker
+
+### Getting Started
+
+1. Build Docker image
+   ```bash
+   docker build -t "install-aws-cli-action" .
+   ```
+1. Run container
+   ```bash
+   docker run --rm -it "install-aws-cli-action" "v2" "amd64"
+   ```
+
+</details>
+
+## Authors
+
+Created and maintained by [Meir Gabay](https://github.com/unfor19)
+
+## License
+
+This project is licensed under the Apache License - see the [LICENSE](https://github.com/unfor19/install-aws-cli-action/blob/master/LICENSE) file for details

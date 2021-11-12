@@ -1,7 +1,5 @@
-FROM ubuntu:18.04
-ENV PYTHONUNBUFFERED=1
-RUN apt-get update -y && apt-get install -y wget unzip python
+FROM ubuntu:20.04
+RUN apt-get update -y && apt-get install -y wget unzip python3
 WORKDIR /app/
 COPY . .
 ENTRYPOINT ["./entrypoint.sh"]
-# CMD ["bash"]
