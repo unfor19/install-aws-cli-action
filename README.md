@@ -1,6 +1,6 @@
 # install-aws-cli-action
 
-[![test](https://github.com/unfor19/install-aws-cli-action/workflows/test/badge.svg)](https://github.com/unfor19/install-aws-cli-action/actions?query=workflow%3Atest)
+[![test](https://github.com/unfor19/install-aws-cli-action/actions/workflows/test.yaml/badge.svg)](https://github.com/unfor19/install-aws-cli-action/actions?query=workflow%3Atest)
 [![test-action](https://github.com/unfor19/install-aws-cli-action-test/workflows/test-action/badge.svg)](https://github.com/unfor19/install-aws-cli-action-test/actions?query=workflow%3Atest-action)
 
 Install AWS CLI on a GitHub Actions Linux host. 
