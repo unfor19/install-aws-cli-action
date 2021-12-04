@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Workflow Dispatch Status
-        uses: unfor19/hero-action@v1
+        uses: unfor19/hero-action@master
         with:
           action: "dispatch-status"
           src_repository: ${{ github.repository }}
