@@ -10,19 +10,18 @@ jobs:
   dispatch_test_action:
     name: Dispatch Test Action
     runs-on: ubuntu-20.04
-    env:
-      GH_OWNER: unfor19
-      GH_REPO: install-aws-cli-action-test
-      GH_WORKFLOW: test-action.yml
-      GH_REF: master
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
-      - name: Workflow Dispatch
-        run: |
-          curl --fail -X POST -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/${GH_WORKFLOW}/dispatches \
-            -d '{"ref":"'${GH_REF}'"}'
+      - uses: actions/checkout@v2
+      - name: Workflow Dispatch Status
+        uses: unfor19/hero-action@v1
+        with:
+          action: "dispatch-status"
+          src_repository: ${{ github.repository }}
+          src_workflow_name: ${{ github.workflow }}
+          src_sha: ${{ github.sha }}
+          target_repository: ${{ github.repository }}-test
+          target_workflow_name: "test-action.yml"
+          gh_token: ${{ secrets.GH_TOKEN }} # scope: repo + workflow
 
   test_amd64:
     runs-on: ubuntu-20.04
