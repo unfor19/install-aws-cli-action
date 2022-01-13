@@ -5,7 +5,7 @@
 
 Install AWS CLI on a GitHub Actions Linux host. 
 
-After this action, every step is capable of running `aws` CLI, and it's up to you to set the environment variables (secrets) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. In addition to this, `AWS_EC2_METADATA_DISABLED: true` should be added to env variables in order to avoid authentication issues. 
+After this action, every step is capable of running `aws` CLI, and it's up to you to set the environment variables (secrets) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. 
 
 Tested in [unfor19/install-aws-cli-action-test](https://github.com/unfor19/install-aws-cli-action-test/actions?query=workflow%3Atest-action)
 
@@ -30,6 +30,19 @@ Add the following step to a job in your workflow
     verbose: false # default
     arch: amd64    # allowed values: amd64, arm64
 ```
+
+**TIP:** When running AWS CLI in Github Actions, make sure you set the `AWS_EC2_METADATA_DISABLED: true` and the `AWS_DEFAULT_REGION` environmnet variables for the step because AWS CLI will try to get the region from the IMDS Service instead, therefore causing an execution error.
+```yaml
+- name: Get caller identity
+  env:
+    AWS_EC2_METADATA_DISABLED: true
+    AWS_DEFAULT_REGION: us-west-1
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  run: |
+    aws sts get-caller-identity
+```
+
 
 ### Full example
 
