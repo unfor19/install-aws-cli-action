@@ -67,6 +67,26 @@ jobs:
         shell: bash
 ```
 
+## Other options
+
+- Execute locally
+  ```bash
+  curl -L -o install-aws.sh https://raw.githubusercontent.com/unfor19/install-aws-cli-action/master/entrypoint.sh && \
+  chmod +x install-aws.sh
+  ./install-aws.sh "v2" "amd64"
+  rm install-aws.sh  
+  ```
+- Dockerfile - Add this to your Dockerfile
+  ```dockerfile
+  # Install AWS CLI
+  WORKDIR /tmp/
+  RUN curl -L -o install-aws.sh https://raw.githubusercontent.com/unfor19/install-aws-cli-action/master/entrypoint.sh && \
+      sudo chmod +x install-aws.sh && \
+      sudo ./install-aws.sh "v2" "amd64" && \
+      sudo rm install-aws.sh
+  ```
+  *NOTE*: On some Docker images you might need to add `sudo` in front of each command, like `sudo curl -L ..`, `sudo chmod ..`, etc.
+
 ## Local Development
 
 <details>
