@@ -29,6 +29,8 @@ Add the following step to a job in your workflow
     version: 2     # default
     verbose: false # default
     arch: amd64    # allowed values: amd64, arm64
+    rootdir: ""    # defaults to "PWD"
+    workdir: ""    # defaults to "PWD/unfor19-awscli"
 ```
 
 ### Full example
