@@ -20,6 +20,14 @@ inputs:
     description: Allowed values are - amd64, arm64
     required: false
     default: amd64
+  rootdir:
+    description: Root directory full path, defaults to PWD
+    required: false
+    default: "" # PWD
+  workdir:
+    description: Working directory full path, all files are downloaded and extracted in this directory
+    required: false
+    default: "" # PWD/unfor19-awscli
 outputs:
   version:
     description: "The AWS CLI version that was installed"
@@ -34,6 +42,8 @@ runs:
         echo "AWS_CLI_ARCH=${{ inputs.arch }}" >> $GITHUB_ENV        
         echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
         echo "LIGHTSAILCTL=${{ inputs.lightsailctl }}" >> $GITHUB_ENV
+        echo "ROOTDIR=${{ inputs.rootdir }}" >> $GITHUB_ENV
+        echo "WORKDIR=${{ inputs.workdir }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
       run: sudo --preserve-env ${{ github.action_path }}/entrypoint.sh
