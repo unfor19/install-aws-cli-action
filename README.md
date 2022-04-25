@@ -5,7 +5,7 @@
 
 Install/Setup AWS CLI on a GitHub Actions Linux host.
 
-After this action, every step is capable of running `aws` CLI, and it's up to you to set the environment variables (secrets) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+After this action, every step is capable of running `aws` CLI, and it's up to you to set AWS credentials in the subsequent steps.
 
 Tested in [unfor19/install-aws-cli-action-test](https://github.com/unfor19/install-aws-cli-action-test/actions?query=workflow%3Atest-action)
 
@@ -89,7 +89,7 @@ jobs:
       sudo ./install-aws.sh "v2" "amd64" && \
       sudo rm install-aws.sh
   ```
-  *NOTE*: On some Docker images you might need to add `sudo` in front of each command, like `sudo curl -L ..`, `sudo chmod ..`, etc.
+  **NOTE**: On some Docker images, you might need to add `sudo` in front of each command, like `sudo curl -L ..`, `sudo chmod ..`, etc.
 
 ## Local Development
 
