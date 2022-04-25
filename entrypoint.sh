@@ -200,8 +200,8 @@ test_lightsailctl(){
 
 
 ### Global Variables
-_ROOT_DIR="${PWD}"
-_WORKDIR="${_ROOT_DIR}/unfor19-awscli"
+_ROOT_DIR="${ROOT_DIR:-$PWD}"
+_WORKDIR="${WORKDIR:-${_ROOT_DIR}/unfor19-awscli}"
 _DOWNLOAD_FILENAME="unfor19-awscli.zip"
 _VERBOSE=${VERBOSE:-"false"}
 _LIGHTSAIL_INSTALL=${LIGHTSAILCTL:-"false"}
