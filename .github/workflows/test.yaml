@@ -50,7 +50,7 @@ jobs:
           ROOTDIR: "${{ matrix.ROOTDIR }}" 
           WORKDIR: "${{ matrix.WORKDIR }}"
         run: |
-          sudo ./entrypoint.sh
+          sudo --preserve-env ./entrypoint.sh
 
   test_amd64:
     runs-on: ubuntu-20.04
@@ -74,7 +74,7 @@ jobs:
           AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
           AWS_CLI_ARCH: "${{ matrix.AWS_CLI_ARCH }}"
         run: |
-          sudo ./entrypoint.sh
+          sudo --preserve-env ./entrypoint.sh
 
   test_arm64:
     # Supports only v2+
