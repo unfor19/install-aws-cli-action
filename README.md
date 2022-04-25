@@ -3,11 +3,13 @@
 [![test](https://github.com/unfor19/install-aws-cli-action/actions/workflows/test.yaml/badge.svg)](https://github.com/unfor19/install-aws-cli-action/actions?query=workflow%3Atest)
 [![test-action](https://github.com/unfor19/install-aws-cli-action-test/workflows/test-action/badge.svg)](https://github.com/unfor19/install-aws-cli-action-test/actions?query=workflow%3Atest-action)
 
-Install AWS CLI on a GitHub Actions Linux host. 
+Install/Setup AWS CLI on a GitHub Actions Linux host.
 
 After this action, every step is capable of running `aws` CLI, and it's up to you to set the environment variables (secrets) `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 
 Tested in [unfor19/install-aws-cli-action-test](https://github.com/unfor19/install-aws-cli-action-test/actions?query=workflow%3Atest-action)
+
+**TIP**: It's possible to use the [entrypoint.sh](https://github.com/unfor19/install-aws-cli-action/blob/master/entrypoint.sh) script as a "bootstrap script to install/setup aws cli on Linux", regardless of GitHub Actions; see [Other Options](https://github.com/unfor19/install-aws-cli-action#other-options) for more details.
 
 ## Usage
 
