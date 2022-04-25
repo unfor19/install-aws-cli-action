@@ -23,6 +23,35 @@ jobs:
           target_workflow_name: "test-action.yml"
           gh_token: ${{ secrets.GH_TOKEN }} # scope: repo + workflow
 
+  test_dirs:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - TEST_NAME: "ROOTDIR v2"
+            AWS_CLI_VERSION: "2"
+            ROOTDIR: "/tmp"
+          - TEST_NAME: "WORKDIR v2"
+            AWS_CLI_VERSION: "2"
+            WORKDIR: "/tmp/unfor19-awscli"            
+          - TEST_NAME: "ROOTDIR v1"
+            AWS_CLI_VERSION: "1"
+            ROOTDIR: "/tmp"
+          - TEST_NAME: "WORKDIR v1"
+            AWS_CLI_VERSION: "1"
+            WORKDIR: "/tmp/unfor19-awscli" 
+    name: Test ${{ matrix.TEST_NAME }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test On Runner
+        env:
+          AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
+          AWS_CLI_ARCH: "${{ matrix.AWS_CLI_ARCH }}"
+          ROOTDIR: "${{ matrix.ROOTDIR }}" 
+          WORKDIR: "${{ matrix.WORKDIR }}"
+        run: |
+          sudo --preserve-env ./entrypoint.sh
+
   test_amd64:
     runs-on: ubuntu-20.04
     strategy:
@@ -45,7 +74,7 @@ jobs:
           AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
           AWS_CLI_ARCH: "${{ matrix.AWS_CLI_ARCH }}"
         run: |
-          sudo ./entrypoint.sh
+          sudo --preserve-env ./entrypoint.sh
 
   test_arm64:
     # Supports only v2+
