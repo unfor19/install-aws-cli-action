@@ -49,5 +49,5 @@ runs:
       run: sudo --preserve-env ${{ github.action_path }}/entrypoint.sh
       shell: bash
     - id: set-output
-      run: echo "::set-output name=version::$(aws --version)"
+      run: echo "version=$(aws --version)" >> $GITHUB_OUTPUT
       shell: bash
