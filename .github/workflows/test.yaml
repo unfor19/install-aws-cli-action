@@ -101,7 +101,7 @@ jobs:
         run: |
           IMAGE="install-aws-cli"
           TAG=$(echo $GITHUB_SHA | head -c7)-${{ matrix.AWS_CLI_VERSION }}
-          echo ::set-output name=tagged_image::${IMAGE}:${TAG}
+          echo "tagged_image=${IMAGE}:${TAG}" >> ${GITHUB_OUTPUT}
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
