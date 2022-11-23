@@ -11,7 +11,7 @@ jobs:
     name: Dispatch Test Action
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Workflow Dispatch Status
         uses: unfor19/hero-action@master
         with:
@@ -42,7 +42,7 @@ jobs:
             WORKDIR: "/tmp/unfor19-awscli" 
     name: Test ${{ matrix.TEST_NAME }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Test On Runner
         env:
           AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
@@ -68,7 +68,7 @@ jobs:
           - TEST_NAME: "No Input"
     name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Test On Runner
         env:
           AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
@@ -88,7 +88,7 @@ jobs:
             AWS_CLI_VERSION: "2.0.30"
     name: Test arm64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
