@@ -13,7 +13,7 @@ Tested in [unfor19/install-aws-cli-action-test](https://github.com/unfor19/insta
 
 ## Usage
 
-Valid `version` values:
+Valid AWS CLI `version` values:
 
 - `1` - latest v1
 - `2` - latest v2 (default)
