@@ -7,19 +7,27 @@ inputs:
   version:
     description: "1=latest version of v1, 2=latest version of v2, #.#.#=specific version"
     required: false
-    default: 2
+    default: "2"
   verbose:
     description: "Prints ls commands to see changes in the filesystem"
     required: false
-    default: false
+    default: "false"
   lightsailctl:
     description: "Install lightsailctl plugin"
     required: false
-    default: false
+    default: "false"
   arch:
     description: Allowed values are - amd64, arm64
     required: false
     default: amd64
+  bindir:
+    description: Bin directory full path, defaults to /usr/local/bin
+    required: false
+    default: /usr/local/bin
+  installrootdir:
+    description: Install directory full path, defaults to /usr/local
+    required: false
+    default: /usr/local
   rootdir:
     description: Root directory full path, defaults to PWD
     required: false
@@ -42,6 +50,8 @@ runs:
         echo "AWS_CLI_ARCH=${{ inputs.arch }}" >> $GITHUB_ENV        
         echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
         echo "LIGHTSAILCTL=${{ inputs.lightsailctl }}" >> $GITHUB_ENV
+        echo "BINDIR=${{ inputs.bindir }}" >> $GITHUB_ENV
+        echo "INSTALLROOTDIR=${{ inputs.installrootdir }}" >> $GITHUB_ENV
         echo "ROOTDIR=${{ inputs.rootdir }}" >> $GITHUB_ENV
         echo "WORKDIR=${{ inputs.workdir }}" >> $GITHUB_ENV
       shell: bash

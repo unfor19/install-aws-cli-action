@@ -40,6 +40,12 @@ jobs:
           - TEST_NAME: "WORKDIR v1"
             AWS_CLI_VERSION: "1"
             WORKDIR: "/tmp/unfor19-awscli" 
+          - TEST_NAME: "BINDIR v2"
+            AWS_CLI_VERSION: "2"
+            BINDIR: "/tmp/aws/bin"
+          - TEST_NAME: "INSTALLROOTDIR v2"
+            AWS_CLI_VERSION: "2"
+            INSTALLROOTDIR: "/tmp/aws"  
     name: Test ${{ matrix.TEST_NAME }}
     steps:
       - uses: actions/checkout@v3
@@ -49,6 +55,8 @@ jobs:
           AWS_CLI_ARCH: "${{ matrix.AWS_CLI_ARCH }}"
           ROOTDIR: "${{ matrix.ROOTDIR }}" 
           WORKDIR: "${{ matrix.WORKDIR }}"
+          BINDIR: "${{ matrix.BINDIR }}"
+          INSTALLROOTDIR: "${{ matrix.INSTALLROOTDIR }}"
         run: |
           sudo --preserve-env ./entrypoint.sh
 

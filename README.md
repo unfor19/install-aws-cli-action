@@ -22,20 +22,35 @@ Valid AWS CLI `version` values:
 
 ### Usage
 
-Add the following step to a job in your workflow
+Add one of the following steps to a job in your workflow.
+
+#### Common Usage
 
 ```yaml
 - id: install-aws-cli
   uses: unfor19/install-aws-cli-action@v1
   with:
-    version: 2     # default
-    verbose: false # default
-    arch: amd64    # allowed values: amd64, arm64
-    rootdir: ""    # defaults to "PWD"
-    workdir: ""    # defaults to "PWD/unfor19-awscli"
+    version: 2                         # default
+    verbose: false                     # default
+    arch: amd64                        # allowed values: amd64, arm64
 ```
 
-### Full example
+#### Full Example
+
+```yaml
+- id: install-aws-cli
+  uses: unfor19/install-aws-cli-action@v1
+  with:
+    version: 2                         # default
+    verbose: false                     # default
+    arch: amd64                        # allowed values: amd64, arm64
+    bindir: "/usr/local/bin"           # default
+    installrootdir: "/usr/local"       # default
+    rootdir: ""                        # defaults to "PWD"
+    workdir: ""                        # defaults to "PWD/unfor19-awscli"
+```
+
+### Test with GitHub Matrix
 
 See [unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml](https://github.com/unfor19/install-aws-cli-action-test/blob/master/.github/workflows/test-action.yml)
 
