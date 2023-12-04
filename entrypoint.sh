@@ -155,7 +155,7 @@ install_aws_cli(){
     wait
     msg_log "Installing AWS CLI - ${provided_version}"
     if [[ "$provided_version" =~ ^1.*$ ]]; then
-        ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+        ./awscli-bundle/install -i "${_INSTALLROOTDIR}}/aws" -b "${_BINDIR}/aws"
     elif [[ "$provided_version" =~ ^2.*$ ]]; then
         local aws_path=""
         aws_path=$(which aws || true)
@@ -164,10 +164,10 @@ install_aws_cli(){
             msg_error "Failed to install AWS CLI - Make sure AWS_CLI_ARCH is set properly, current value is ${provided_arch}"
         elif [[ "$aws_path" =~ ^.*aws.*not.*found || -z "$aws_path" ]]; then
             # Fresh install
-            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli
+            ./aws/install --bin-dir "$_BINDIR" --install-dir "${_INSTALLROOTDIR}/aws-cli"
         else
             # Update
-            ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+            ./aws/install --bin-dir "$_BINDIR" --install-dir "${_INSTALLROOTDIR}/aws-cli" --update
         fi
     fi
     msg_log "Installation completed"
@@ -205,12 +205,12 @@ install_lightsailctl(){
     if [[ $provided_version =~ ^2.*$ ]]; then
         msg_log "Installing Lightsailctl"
         if [[ "$_AWS_CLI_DOWNLOAD_TOOL" = "wget" ]]; then
-            wget -q -O "/usr/local/bin/lightsailctl" "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
+            wget -q -O "${_BINDIR}/lightsailctl" "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
         elif [[ "$_AWS_CLI_DOWNLOAD_TOOL" = "curl" ]]; then
-            curl -sL -o "/usr/local/bin/lightsailctl"  "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
+            curl -sL -o "${_BINDIR}/lightsailctl"  "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl"
         fi
         wait
-        chmod +x /usr/local/bin/lightsailctl
+        chmod +x "${_BINDIR}/lightsailctl"
         msg_log "Installation complete"
     else
         msg_error "Cannot install Lightsail plugin with CLI 1.x"
@@ -230,6 +230,10 @@ test_lightsailctl(){
 
 
 ### Global Variables
+msg_log "Provided BINDIR: ${BINDIR}"
+_BINDIR="${BINDIR:-"/usr/local/bin"}"
+msg_log "Provided INSTALLROOTDIR: ${INSTALLROOTDIR}"
+_INSTALLROOTDIR="${INSTALLROOTDIR:-"/usr/local"}"
 msg_log "Provided ROOTDIR: ${ROOT_DIR}"
 _ROOT_DIR="${ROOT_DIR:-$PWD}"
 msg_log "Provided WORKDIR: ${WORKDIR}"
