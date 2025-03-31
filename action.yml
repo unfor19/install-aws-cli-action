@@ -17,7 +17,7 @@ inputs:
     required: false
     default: "false"
   arch:
-    description: Allowed values are - amd64, arm64
+    description: Allowed values are - amd64, x86, x64, arm, arm64
     required: false
     default: amd64
   bindir:
