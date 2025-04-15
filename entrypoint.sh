@@ -70,9 +70,9 @@ get_download_url(){
     # v2
     elif [[ "$provided_version" =~ ^2.*$ ]]; then
         # Check arch
-        if [[ "$provided_arch" = "amd64" ]]; then
+        if [[ "$provided_arch" =~ ^(amd64|x86|x64)$ ]]; then
             adjusted_arch="x86_64"
-        elif [[ "$provided_arch" = "arm64" ]]; then
+        elif [[ "$provided_arch" =~ ^(arm64|arm)$ ]]; then
             adjusted_arch="aarch64"
         else
             echo "Invalid arch - ${provided_arch}"

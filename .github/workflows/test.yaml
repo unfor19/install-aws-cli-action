@@ -60,6 +60,54 @@ jobs:
         run: |
           sudo --preserve-env ./entrypoint.sh
 
+  test_x86:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - TEST_NAME: "Latest v2"
+            AWS_CLI_VERSION: "2"
+          - TEST_NAME: "Specific v2"
+            AWS_CLI_VERSION: "2.0.30"
+          - TEST_NAME: "Latest v1"
+            AWS_CLI_VERSION: "1"
+          - TEST_NAME: "Specific v1"
+            AWS_CLI_VERSION: "1.32.19"
+          - TEST_NAME: "No Input"
+    name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
+    steps:
+      - uses: actions/checkout@main
+      - name: Test On Runner
+        env:
+          AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
+          AWS_CLI_ARCH: "x86"
+        run: |
+          sudo --preserve-env ./entrypoint.sh
+
+  test_x64:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - TEST_NAME: "Latest v2"
+            AWS_CLI_VERSION: "2"
+          - TEST_NAME: "Specific v2"
+            AWS_CLI_VERSION: "2.0.30"
+          - TEST_NAME: "Latest v1"
+            AWS_CLI_VERSION: "1"
+          - TEST_NAME: "Specific v1"
+            AWS_CLI_VERSION: "1.32.19"
+          - TEST_NAME: "No Input"
+    name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
+    steps:
+      - uses: actions/checkout@main
+      - name: Test On Runner
+        env:
+          AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
+          AWS_CLI_ARCH: "x64"
+        run: |
+          sudo --preserve-env ./entrypoint.sh
+
   test_amd64:
     runs-on: ubuntu-22.04
     strategy:
@@ -83,6 +131,62 @@ jobs:
           AWS_CLI_ARCH: "${{ matrix.AWS_CLI_ARCH }}"
         run: |
           sudo --preserve-env ./entrypoint.sh
+
+  test_arm:
+    # Supports only v2+
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - TEST_NAME: "Latest v2"
+            AWS_CLI_VERSION: "2"
+          - TEST_NAME: "Specific v2"
+            AWS_CLI_VERSION: "2.0.30"
+    name: Test arm64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
+    steps:
+      - uses: actions/checkout@main
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@master
+        with:
+          install: true
+      - name: Prepare
+        id: prep
+        run: |
+          IMAGE="install-aws-cli"
+          TAG=$(echo $GITHUB_SHA | head -c7)-${{ matrix.AWS_CLI_VERSION }}
+          echo "tagged_image=${IMAGE}:${TAG}" >> ${GITHUB_OUTPUT}
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.AWS_CLI_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ matrix.AWS_CLI_VERSION }}-
+      - name: Build Docker Image
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          builder: ${{ steps.buildx.outputs.name }}
+          push: false
+          load: true
+          tags: ${{ steps.prep.outputs.tagged_image }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          platforms: arm64
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+      - name: Test In Docker
+        env:
+          AWS_CLI_VERSION: "${{ matrix.AWS_CLI_VERSION}}"
+          AWS_CLI_ARCH: "arm"
+          DOCKER_TAG: "install-aws-cli-action"
+        run: |
+          docker run --rm -e AWS_CLI_VERSION -e AWS_CLI_ARCH "${{ steps.prep.outputs.tagged_image }}"
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   test_arm64:
     # Supports only v2+
