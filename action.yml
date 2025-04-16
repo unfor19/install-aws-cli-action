@@ -56,7 +56,12 @@ runs:
         echo "WORKDIR=${{ inputs.workdir }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
-      run: sudo --preserve-env ${GITHUB_ACTION_PATH}/entrypoint.sh
+      run: |
+        if [[ $UID == 0 ]]; then
+          "${GITHUB_ACTION_PATH}/entrypoint.sh"
+        else
+          sudo --preserve-env "${GITHUB_ACTION_PATH}/entrypoint.sh"
+        fi
       shell: bash
     - id: set-output
       run: echo "version=$(aws --version)" >> $GITHUB_OUTPUT
