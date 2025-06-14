@@ -32,7 +32,7 @@ Add one of the following steps to a job in your workflow.
   with:
     version: 2                         # default
     verbose: false                     # default
-    arch: amd64                        # allowed values: amd64, x86, x64, arm, arm64
+    arch: amd64                        # allowed values: amd64, x86, x64, arm, arm64, X86, X64, ARM, ARM64
 ```
 
 #### Full Example
@@ -43,7 +43,7 @@ Add one of the following steps to a job in your workflow.
   with:
     version: 2                         # default
     verbose: false                     # default
-    arch: amd64                        # allowed values: amd64, arm64
+    arch: amd64                        # allowed values: amd64, x86, x64, arm, arm64, X86, X64, ARM, ARM64
     bindir: "/usr/local/bin"           # default
     installrootdir: "/usr/local"       # default
     rootdir: ""                        # defaults to "PWD"
