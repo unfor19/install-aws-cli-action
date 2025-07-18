@@ -1,6 +1,5 @@
-FROM ubuntu:24.04
-RUN apt-get update -y && apt-get install -y wget unzip python3 python3-venv
+FROM python:3.12-slim
+RUN apt-get update -y && apt-get install -y wget unzip
 WORKDIR /app/
 COPY . .
-RUN ln -s /usr/bin/python3 /usr/bin/python
 ENTRYPOINT ["./entrypoint.sh"]
