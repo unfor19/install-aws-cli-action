@@ -62,7 +62,7 @@ get_download_url(){
     # v1
     if [[ "$provided_version" =~ ^1.*$ ]]; then
         if [[ "$provided_arch" != "amd64" ]]; then
-            echo "AWS CLI v1 does not support ${_AWS_CLI_VERSION}"
+            echo "Provided arch ${provided_arch} is not supported for AWS CLI v1"
             return
         fi
         if [[ "$provided_version" = "1" ]]; then
