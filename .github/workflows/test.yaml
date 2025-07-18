@@ -9,7 +9,7 @@ on:
 jobs:
   dispatch_test_action:
     name: Dispatch Test Action
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@main
       - name: Workflow Dispatch Status
@@ -24,7 +24,7 @@ jobs:
           gh_token: ${{ secrets.GH_TOKEN }} # scope: repo + workflow
 
   test_dirs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -61,7 +61,7 @@ jobs:
           sudo --preserve-env ./entrypoint.sh
 
   test_x86:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -72,7 +72,7 @@ jobs:
           - TEST_NAME: "Latest v1"
             AWS_CLI_VERSION: "1"
           - TEST_NAME: "Specific v1"
-            AWS_CLI_VERSION: "1.32.19"
+            AWS_CLI_VERSION: "1.41.8"
           - TEST_NAME: "No Input"
     name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
@@ -85,7 +85,7 @@ jobs:
           sudo --preserve-env ./entrypoint.sh
 
   test_x64:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -96,7 +96,7 @@ jobs:
           - TEST_NAME: "Latest v1"
             AWS_CLI_VERSION: "1"
           - TEST_NAME: "Specific v1"
-            AWS_CLI_VERSION: "1.32.19"
+            AWS_CLI_VERSION: "1.41.8"
           - TEST_NAME: "No Input"
     name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
@@ -109,7 +109,7 @@ jobs:
           sudo --preserve-env ./entrypoint.sh
 
   test_amd64:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -120,7 +120,7 @@ jobs:
           - TEST_NAME: "Latest v1"
             AWS_CLI_VERSION: "1"
           - TEST_NAME: "Specific v1"
-            AWS_CLI_VERSION: "1.32.19"
+            AWS_CLI_VERSION: "1.41.8"
           - TEST_NAME: "No Input"
     name: Test amd64 ${{ matrix.TEST_NAME }} ${{ matrix.AWS_CLI_VERSION}}
     steps:
@@ -134,7 +134,7 @@ jobs:
 
   test_arm:
     # Supports only v2+
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -190,7 +190,7 @@ jobs:
 
   test_arm64:
     # Supports only v2+
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:

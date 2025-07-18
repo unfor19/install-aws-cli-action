@@ -61,7 +61,10 @@ get_download_url(){
     provided_arch="$2"
     # v1
     if [[ "$provided_version" =~ ^1.*$ ]]; then
-        [[ "$provided_arch" != "amd64" ]] && msg_error "AWS CLI v1 does not support ${_AWS_CLI_VERSION}"
+        if [[ "$provided_arch" =~ ^(arm.*|aarch64)$ ]]; then
+            echo "Provided arch ${provided_arch} is not supported for AWS CLI v1"
+            return
+        fi
         if [[ "$provided_version" = "1" ]]; then
             download_url="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
         else
@@ -90,6 +93,7 @@ get_download_url(){
 }
 
 set_download_tool(){
+    msg_log "Setting download tool"
     # Default is "wget", fallback is "curl", fails otherwise
     if which wget 1>/dev/null; then
         _AWS_CLI_DOWNLOAD_TOOL="wget"
@@ -98,6 +102,7 @@ set_download_tool(){
     else
         msg_error "Both 'wget' and 'curl' are not installed"
     fi
+    msg_log "Download tool set to ${_AWS_CLI_DOWNLOAD_TOOL}"
 }
 
 
@@ -155,7 +160,7 @@ install_aws_cli(){
     wait
     msg_log "Installing AWS CLI - ${provided_version}"
     if [[ "$provided_version" =~ ^1.*$ ]]; then
-        ./awscli-bundle/install -i "${_INSTALLROOTDIR}}/aws" -b "${_BINDIR}/aws"
+        ./awscli-bundle/install -i "${_INSTALLROOTDIR}/aws" -b "${_BINDIR}/aws"
     elif [[ "$provided_version" =~ ^2.*$ ]]; then
         local aws_path=""
         aws_path=$(which aws || true)
@@ -264,6 +269,7 @@ set_download_tool
 
 # Set Download URL and check if file exists on server
 _AWS_CLI_DOWNLOAD_URL="${AWS_CLI_DOWNLOAD_URL:-"$(get_download_url "$_AWS_CLI_VERSION" "$_AWS_CLI_ARCH" 2>&1)"}"
+
 [[ ! "$_AWS_CLI_DOWNLOAD_URL" =~ ^https://.* ]] && msg_error "$_AWS_CLI_DOWNLOAD_URL"
 check_version_exists "$_AWS_CLI_DOWNLOAD_URL"
 
