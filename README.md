@@ -48,7 +48,10 @@ Add one of the following steps to a job in your workflow.
     installrootdir: "/usr/local"       # default
     rootdir: ""                        # defaults to "PWD"
     workdir: ""                        # defaults to "PWD/unfor19-awscli"
+    verify_signature: auto             # default
 ```
+
+AWS CLI v2 zips are verified against the AWS CLI Team PGP key (`FB5DB77FD5C118B80511ADA8A6310ACC4672475C`) before installing. `auto` verifies when `gpg` is available and otherwise warns and skips, `true` fails if `gpg` is missing, `false` skips verification. AWS CLI v1 bundles are not verified.
 
 ### Test with GitHub Matrix
 
