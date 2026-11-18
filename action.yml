@@ -32,14 +32,14 @@ inputs:
     description: Root directory full path, defaults to PWD
     required: false
     default: "" # PWD
-  workdir:
-    description: Working directory full path, all files are downloaded and extracted in this directory
-    required: false
-    default: "" # PWD/unfor19-awscli
   verify_signature:
     description: "auto|true|false - verify the AWS CLI v2 zip PGP signature"
     required: false
     default: "auto"
+  workdir:
+    description: Working directory full path, all files are downloaded and extracted in this directory
+    required: false
+    default: "" # PWD/unfor19-awscli
 outputs:
   version:
     description: "The AWS CLI version that was installed"
@@ -51,14 +51,14 @@ runs:
     - id: set-env-vars
       run: |
         echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
-        echo "AWS_CLI_ARCH=${{ inputs.arch }}" >> $GITHUB_ENV        
+        echo "AWS_CLI_ARCH=${{ inputs.arch }}" >> $GITHUB_ENV
         echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
         echo "LIGHTSAILCTL=${{ inputs.lightsailctl }}" >> $GITHUB_ENV
         echo "BINDIR=${{ inputs.bindir }}" >> $GITHUB_ENV
         echo "INSTALLROOTDIR=${{ inputs.installrootdir }}" >> $GITHUB_ENV
         echo "ROOTDIR=${{ inputs.rootdir }}" >> $GITHUB_ENV
-        echo "WORKDIR=${{ inputs.workdir }}" >> $GITHUB_ENV
         echo "VERIFY_SIGNATURE=${{ inputs.verify_signature }}" >> $GITHUB_ENV
+        echo "WORKDIR=${{ inputs.workdir }}" >> $GITHUB_ENV
       shell: bash
     - id: install-aws-cli
       run: sudo --preserve-env ${GITHUB_ACTION_PATH}/entrypoint.sh
