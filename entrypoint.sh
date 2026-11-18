@@ -6,7 +6,7 @@ set -o pipefail
 ### ----------------------------------------
 ### Minimum: (wget or curl) and unzip
 ### v1: Python v2.7+ or 3.4+
-### v2: Nothing special
+### v2: Nothing special (gpg is optional, used to verify the zip signature)
 ### ----------------------------------------
 
 ### Usage
@@ -147,6 +147,61 @@ download_aws_cli(){
 }
 
 
+verify_aws_cli_signature(){
+    local provided_filename
+    local provided_url
+    local provided_version
+    local gpg_home
+    local gpg_output=""
+    provided_filename="$1"
+    provided_url="$2"
+    provided_version="$3"
+
+    if [[ ! "$provided_version" =~ ^2.*$ ]]; then
+        msg_log "Signature verification is skipped, AWS CLI v1 bundles have no documented signature"
+        return
+    fi
+
+    if [[ "$_VERIFY_SIGNATURE" = "false" ]]; then
+        msg_log "Signature verification is disabled (VERIFY_SIGNATURE=false)"
+        return
+    fi
+
+    if ! command -v gpg 1>/dev/null; then
+        if [[ "$_VERIFY_SIGNATURE" = "true" ]]; then
+            msg_error "VERIFY_SIGNATURE=true but 'gpg' is not installed"
+        fi
+        msg_log "[WARN] 'gpg' is not installed, skipping signature verification"
+        return
+    fi
+
+    msg_log "Verifying PGP signature of ${provided_filename}"
+    if [[ "$_AWS_CLI_DOWNLOAD_TOOL" = "wget" ]]; then
+        wget -q -O "${provided_filename}.sig" "${provided_url}.sig" || msg_error "Failed to download signature - ${provided_url}.sig"
+    elif [[ "$_AWS_CLI_DOWNLOAD_TOOL" = "curl" ]]; then
+        curl -fsSL -o "${provided_filename}.sig" "${provided_url}.sig" || msg_error "Failed to download signature - ${provided_url}.sig"
+    fi
+
+    # Isolated keyring, the runner's keyring is untouched
+    gpg_home="$(mktemp -d)"
+    chmod 700 "$gpg_home"
+    if ! echo "$_AWS_CLI_PGP_KEY" | GNUPGHOME="$gpg_home" gpg --batch --quiet --import 2>/dev/null; then
+        rm -rf "$gpg_home"
+        msg_error "Failed to import the AWS CLI PGP key"
+    fi
+    gpg_output="$(GNUPGHOME="$gpg_home" gpg --batch --status-fd 1 --verify "${provided_filename}.sig" "$provided_filename" 2>&1 || true)"
+    rm -rf "$gpg_home"
+
+    if [[ "$gpg_output" =~ (EXPKEYSIG|KEYEXPIRED) ]]; then
+        msg_error "Signature verification failed, the embedded AWS CLI PGP key has expired and needs refreshing\n${gpg_output}"
+    fi
+    if ! echo "$gpg_output" | grep -E "^\[GNUPG:\] VALIDSIG " | grep -q "$_AWS_CLI_PGP_FINGERPRINT"; then
+        msg_error "Signature verification failed\n${gpg_output}"
+    fi
+    msg_log "Signature verified - key ${_AWS_CLI_PGP_FINGERPRINT}"
+}
+
+
 install_aws_cli(){
     local provided_filename
     local provided_version
@@ -250,6 +305,42 @@ _VERBOSE=${VERBOSE:-"false"}
 _LIGHTSAIL_INSTALL=${LIGHTSAILCTL:-"false"}
 _DOWNLOAD_URL=""
 
+_VERIFY_SIGNATURE="${VERIFY_SIGNATURE:-"auto"}"  # auto|true|false
+_AWS_CLI_PGP_FINGERPRINT="FB5DB77FD5C118B80511ADA8A6310ACC4672475C"
+# AWS CLI Team public key, expires 2027-07-01
+# https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+read -r -d '' _AWS_CLI_PGP_KEY <<'EOF' || true
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mQINBF2Cr7UBEADJZHcgusOJl7ENSyumXh85z0TRV0xJorM2B/JL0kHOyigQluUG
+ZMLhENaG0bYatdrKP+3H91lvK050pXwnO/R7fB/FSTouki4ciIx5OuLlnJZIxSzx
+PqGl0mkxImLNbGWoi6Lto0LYxqHN2iQtzlwTVmq9733zd3XfcXrZ3+LblHAgEt5G
+TfNxEKJ8soPLyWmwDH6HWCnjZ/aIQRBTIQ05uVeEoYxSh6wOai7ss/KveoSNBbYz
+gbdzoqI2Y8cgH2nbfgp3DSasaLZEdCSsIsK1u05CinE7k2qZ7KgKAUIcT/cR/grk
+C6VwsnDU0OUCideXcQ8WeHutqvgZH1JgKDbznoIzeQHJD238GEu+eKhRHcz8/jeG
+94zkcgJOz3KbZGYMiTh277Fvj9zzvZsbMBCedV1BTg3TqgvdX4bdkhf5cH+7NtWO
+lrFj6UwAsGukBTAOxC0l/dnSmZhJ7Z1KmEWilro/gOrjtOxqRQutlIqG22TaqoPG
+fYVN+en3Zwbt97kcgZDwqbuykNt64oZWc4XKCa3mprEGC3IbJTBFqglXmZ7l9ywG
+EEUJYOlb2XrSuPWml39beWdKM8kzr1OjnlOm6+lpTRCBfo0wa9F8YZRhHPAkwKkX
+XDeOGpWRj4ohOx0d2GWkyV5xyN14p2tQOCdOODmz80yUTgRpPVQUtOEhXQARAQAB
+tCFBV1MgQ0xJIFRlYW0gPGF3cy1jbGlAYW1hem9uLmNvbT6JAlQEEwEIAD4CGwMF
+CwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQT7Xbd/1cEYuAURraimMQrMRnJHXAUC
+akV0ygUJDqP4lQAKCRCmMQrMRnJHXFHjD/9eyZLYcKuQOlLvtqSDtUBiEZf6ZZjM
+i3ygYH8rJNtuToUH+HvSpe819urJCquXhDrlK6N+aqW0hCLtNABJG/vsafIgvIYJ
+hSGgpgtNnQyMV1jViRWqPjbouw8OkYKBThUfT1i2Y+wn58ifs6ODBCmTexWtXspA
+Si+Gt49xDOW0APmbOPnI+a4HJW6tVEo6MWS0WjzpiBayR3d1A4pt4YrPfSdDgpLo
+h2SLQqlRqvvVZJaWBjhkErNFpfsBA06sDcPEOb0G8LBUbR4WOcdvhe5LubJbZuxC
+AG9kNPCVeQP1ixwjgjXKysaxeQ6rv0VzIQgRp6tLVLWhy6AKDNvLjFSsmXZ1Wl08
+Y/RlOHXlzLuQMRE6sR1wOdRxc9TsrNWTGiBK65cvSWOy03JeBkQQ8pesqltiyxI9
+U21kkgiXtTSKNGfKK8pO27D81YANhRqPK7iTp6kuFiY2WtOg90KTMNlIT+Ff85Y2
+b1rHj6Z0SrCkJujhWk3IBPic/wJgz01LEc/OAdUPlby90RJZcIBhSlWhT7mXnXIO
+c0HWlNQrns2s3CTyYwZSiSlYe9ApeLwhjDo8NhbFuCAy61l6O5UsR4AfZxx/rGKv
+2wFb1/RN/P4gNe6vmxZAPjR0AQcwD3tc2McimOLr/22kmPz8IH3I0X7WoSFr0Biz
+E91G7bb0hOb/cA==
+=knv7
+-----END PGP PUBLIC KEY BLOCK-----
+EOF
+
 _DEFAULT_VERSION="2"
 _AWS_CLI_VERSION="${1:-"$AWS_CLI_VERSION"}"   # Use env or arg
 _AWS_CLI_VERSION="${_AWS_CLI_VERSION^^}"      # All uppercase
@@ -273,8 +364,9 @@ _AWS_CLI_DOWNLOAD_URL="${AWS_CLI_DOWNLOAD_URL:-"$(get_download_url "$_AWS_CLI_VE
 [[ ! "$_AWS_CLI_DOWNLOAD_URL" =~ ^https://.* ]] && msg_error "$_AWS_CLI_DOWNLOAD_URL"
 check_version_exists "$_AWS_CLI_DOWNLOAD_URL"
 
-# Download and install AWS CLI
+# Download, verify and install AWS CLI
 download_aws_cli "$_DOWNLOAD_FILENAME" "$_AWS_CLI_DOWNLOAD_URL"
+verify_aws_cli_signature "$_DOWNLOAD_FILENAME" "$_AWS_CLI_DOWNLOAD_URL" "$_AWS_CLI_VERSION"
 install_aws_cli "$_DOWNLOAD_FILENAME" "$_AWS_CLI_VERSION" "$_AWS_CLI_ARCH"
 test_aws_cli "$_AWS_CLI_ARCH"
 
